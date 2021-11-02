@@ -54,25 +54,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late Future<CryptoData> data;
-
-  Future<CryptoData> fetch() async {
-    final response = await http.get(
-        Uri.parse('https://api.coingecko.com/api/v3/coins/smooth-love-potion'));
-
-    if (response.statusCode == 200) {
-      return CryptoData.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('failed');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    data = fetch();
-  }
-
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -82,29 +63,21 @@ class _HomePageState extends State<HomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-          title: Text(widget.title),
-          titleTextStyle: Theme.of(context).textTheme.headline6,
-          centerTitle: true,
-          backgroundColor: Colors.white),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            FutureBuilder<CryptoData>(
-                future: data,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Text(snapshot.data!.currentPrices['php'].toString());
-                    //return Text(snapshot.data!.currentPrices['php'].toString());
-                  } else if (snapshot.hasError) {
-                    return Text('${snapshot.error}');
-                  }
-                  return const CircularProgressIndicator();
-                })
-          ],
-        ),
-      ),
-    );
+        appBar: AppBar(
+            title: Text(widget.title),
+            titleTextStyle: Theme.of(context).textTheme.headline6,
+            centerTitle: true,
+            backgroundColor: Colors.white),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[const CryptoDataCard()],
+              )
+            ],
+          ),
+        ));
   }
 }
