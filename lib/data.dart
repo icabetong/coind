@@ -34,26 +34,25 @@ class _CryptoDataCard extends State<CryptoDataCard> {
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicWidth(
-        child: Card(
-            child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: FutureBuilder<CryptoData>(
-                    future: crypto,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return Column(
-                          children: [
-                            Text(snapshot.data!.currentPrices['php'].toString(),
-                                style: Theme.of(context).textTheme.headline5),
-                            Text(snapshot.data!.name)
-                          ],
-                        );
-                      } else if (snapshot.hasError) {
-                        return Text('${snapshot.error}');
-                      }
-                      return const CircularProgressIndicator();
-                    }))));
+    return Card(
+        child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: FutureBuilder<CryptoData>(
+                future: crypto,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Column(
+                      children: [
+                        Text(snapshot.data!.currentPrices['php'].toString(),
+                            style: Theme.of(context).textTheme.headline4),
+                        Text(snapshot.data!.name)
+                      ],
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text('${snapshot.error}');
+                  }
+                  return const CircularProgressIndicator();
+                })));
   }
 }
 

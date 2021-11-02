@@ -1,9 +1,5 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'data.dart';
 
 void main() {
@@ -68,16 +64,14 @@ class _HomePageState extends State<HomePage> {
             titleTextStyle: Theme.of(context).textTheme.headline6,
             centerTitle: true,
             backgroundColor: Colors.white),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[const CryptoDataCard()],
-              )
-            ],
-          ),
-        ));
+        body: SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: const [Expanded(child: CryptoDataCard())],
+                ))));
   }
 }
