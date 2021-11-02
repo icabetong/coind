@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'data.dart';
@@ -56,12 +57,13 @@ class _HomePageState extends State<HomePage> {
   late Future<CryptoData> data;
 
   Future<CryptoData> fetch() async {
-    final response = await http.get(Uri.parse('https://api.coingecko.com/api/v3/coins/smooth-love-potion'));
+    final response = await http.get(
+        Uri.parse('https://api.coingecko.com/api/v3/coins/smooth-love-potion'));
 
     if (response.statusCode == 200) {
-      return CryptoData.fromJson(jsonDecode(response.body))
+      return CryptoData.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('failed')
+      throw Exception('failed');
     }
   }
 
@@ -70,7 +72,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     data = fetch();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -91,24 +92,19 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             FutureBuilder<CryptoData>(
-              future: data,
-              builder: (context, snapshot) {
-                if (snapshot.hasData)
-                  return Text(snapshot.data!.name)
-                else if (snapshot.hasError)
-                  return Text(`${snapshot.error}`)
-
-                return const CircularProgressIndicator();
-              }
-            )
+                future: data,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Text(snapshot.data!.currentPrices['php'].toString());
+                    //return Text(snapshot.data!.currentPrices['php'].toString());
+                  } else if (snapshot.hasError) {
+                    return Text('${snapshot.error}');
+                  }
+                  return const CircularProgressIndicator();
+                })
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
