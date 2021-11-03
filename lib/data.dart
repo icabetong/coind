@@ -16,8 +16,8 @@ class _CryptoDataCard extends State<CryptoDataCard> {
   late Future<CryptoData> crypto;
 
   Future<CryptoData> fetch() async {
-    final response = await http.get(
-        Uri.parse('https://api.coingecko.com/api/v3/coins/smooth-love-potion'));
+    final response = await http.get(Uri.parse(
+        'https://api.coingecko.com/api/v3/coins/smooth-love-potion?localization=false'));
 
     if (response.statusCode == 200) {
       return CryptoData.fromJson(jsonDecode(response.body));
@@ -34,25 +34,25 @@ class _CryptoDataCard extends State<CryptoDataCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-        child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: FutureBuilder<CryptoData>(
-                future: crypto,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Column(
-                      children: [
-                        Text(snapshot.data!.currentPrices['php'].toString(),
-                            style: Theme.of(context).textTheme.headline4),
-                        Text(snapshot.data!.name)
-                      ],
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text('${snapshot.error}');
-                  }
-                  return const CircularProgressIndicator();
-                })));
+    return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: FutureBuilder<CryptoData>(
+            future: crypto,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Column(
+                  children: [
+                    Text(snapshot.data!.name,
+                        style: Theme.of(context).textTheme.headline6),
+                    Text(snapshot.data!.currentPrices['php'].toString(),
+                        style: Theme.of(context).textTheme.headline4),
+                  ],
+                );
+              } else if (snapshot.hasError) {
+                return Text('${snapshot.error}');
+              }
+              return const CircularProgressIndicator();
+            }));
   }
 }
 

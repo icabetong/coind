@@ -9,23 +9,32 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
+  ThemeData construct() {
+    final base = ThemeData.dark();
+    const mainColor = Color(0xff322f44);
+    return base.copyWith(
+        scaffoldBackgroundColor: mainColor,
+        primaryColor: Colors.indigo,
+        cardColor: Color.lerp(mainColor, Colors.white, 0.2),
+        cardTheme: base.cardTheme.copyWith(
+            color: Color.lerp(mainColor, Colors.black, 0.1),
+            margin: const EdgeInsets.all(16.0),
+            elevation: 0.0),
+        appBarTheme: base.appBarTheme.copyWith(
+            backgroundColor: mainColor,
+            elevation: 0.0,
+            centerTitle: true,
+            titleTextStyle: base.appBarTheme.titleTextStyle?.copyWith(
+              color: Color.lerp(mainColor, Colors.white, 0.7),
+            )));
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Coind',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
+      theme: construct(),
       home: const HomePage(title: 'Coind'),
     );
   }
@@ -59,16 +68,12 @@ class _HomePageState extends State<HomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-        appBar: AppBar(
-            title: Text(widget.title),
-            titleTextStyle: Theme.of(context).textTheme.headline6,
-            centerTitle: true,
-            backgroundColor: Colors.white),
+        appBar: AppBar(title: Text(widget.title.toUpperCase())),
         body: SizedBox(
             width: double.infinity,
             height: double.infinity,
             child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   children: const [Expanded(child: CryptoDataCard())],
