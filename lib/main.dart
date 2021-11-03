@@ -1,13 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'data.dart';
+import 'settings.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const Coind());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class Coind extends StatelessWidget {
+  const Coind({Key? key}) : super(key: key);
 
   ThemeData construct() {
     final base = ThemeData(brightness: Brightness.dark, fontFamily: 'Rubik');
@@ -15,10 +16,8 @@ class MyApp extends StatelessWidget {
     const secondaryColor = Color(0xff29ccb9);
     return base.copyWith(
         scaffoldBackgroundColor: mainColor,
-        colorScheme: base.colorScheme.copyWith(
-          primary: mainColor,
-          secondary: secondaryColor
-        ),
+        colorScheme: base.colorScheme
+            .copyWith(primary: mainColor, secondary: secondaryColor),
         cardColor: Color.lerp(mainColor, Colors.white, 0.2),
         cardTheme: base.cardTheme.copyWith(
             color: Color.lerp(mainColor, Colors.black, 0.1),
@@ -32,10 +31,9 @@ class MyApp extends StatelessWidget {
               color: Color.lerp(mainColor, Colors.white, 0.7),
             )),
         textTheme: base.textTheme.copyWith(
-          headline4: const TextStyle(color: Colors.white),
-          headline6: const TextStyle(color: Colors.white),
-          overline: const TextStyle(color: Colors.white)
-        ));
+            headline4: const TextStyle(color: Colors.white),
+            headline6: const TextStyle(color: Colors.white),
+            overline: const TextStyle(color: Colors.white)));
   }
 
   // This widget is the root of your application.
@@ -77,12 +75,17 @@ class _HomePageState extends State<HomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-        appBar: AppBar(title: Text(widget.title.toUpperCase())),
+        appBar: AppBar(
+            title: Text(widget.title.toUpperCase()),
+            leading: GestureDetector(
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => SettingsRoute()));
+                },
+                child: Icon(Icons.menu))),
         body: const SizedBox(
             width: double.infinity,
             height: double.infinity,
-            child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: CyptoData())));
+            child: Padding(padding: EdgeInsets.all(16.0), child: CyptoData())));
   }
 }
