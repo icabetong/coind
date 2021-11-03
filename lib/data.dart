@@ -38,6 +38,8 @@ class _CryptoData extends State<CyptoData> {
 
   @override
   Widget build(BuildContext context) {
+    bool isScreenWide = MediaQuery.of(context).size.width >= 800;
+
     return FutureBuilder<Crypto>(
         future: crypto,
         builder: (context, snapshot) {
@@ -47,43 +49,46 @@ class _CryptoData extends State<CyptoData> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(snapshot.data!.name.toUpperCase(),
-                    style: Theme.of(context).textTheme.headline6),
-                Text(snapshot.data!.currentPrices['php'].toString(),
-                    style: Theme.of(context).textTheme.headline3),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      flex: 4,
-                      child: Column(
-                        children: [
-                          InformationRow(
-                              header: "Lowest",
-                              info:
-                                  'P ${snapshot.data!.lowest24h['php']?.toStringAsFixed(2)}'),
-                          InformationRow(
-                              header: "Highest",
-                              info:
-                                  'P ${snapshot.data!.highest24h['php']?.toStringAsFixed(2)}')
-                        ],
+                    style: Theme.of(context).textTheme.headline6?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16.0,
+                      color: Colors.white70
+                    )
+                  ),
+                Text('${snapshot.data!.currentPrices['php']?.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.headline2?.copyWith(
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white,
+                    )
+                  ),
+                Container(
+                  margin: const EdgeInsets.only(top: 16.0),
+                  child: Column(
+                    children: [
+                      InformationRow(
+                        header: "Highest 24h", 
+                        info: 'P ${snapshot.data!.highest24h['php']?.toStringAsFixed(2)}'
                       ),
-                    ),
-                    const Spacer(flex: 1),
-                    Expanded(
-                      flex: 4,
-                      child: Column(
-                        children: [
-                          InformationRow(
-                              header: "Dominance", info: 0.toString()),
-                          InformationRow(
-                              header: "Market Cap Rank",
-                              info: snapshot.data!.marketCapRank.toString())
-                        ],
+                      InformationRow(
+                        header: "Lowest 24h", 
+                        info: 'P ${snapshot.data!.lowest24h['php']?.toStringAsFixed(2)}'
                       ),
-                    ),
-                  ],
+                      InformationRow(
+                        header: "Market Cap", 
+                        info: 'P ${snapshot.data!.marketCap['php']}'
+                      ),
+                      InformationRow(
+                        header: "All-Time Low", 
+                        info: 'P ${snapshot.data!.allTimeLow['php'].toStringAsFixed(2)}'
+                      ),
+                      InformationRow(
+                        header: "All-Time High", 
+                        info: 'P ${snapshot.data!.allTimeHigh['php'].toStringAsFixed(2)}'
+                      ),
+                    ],
+                  ),
                 )
-              ],
+              ]
             );
           } else if (snapshot.hasError) {
             return Text('${snapshot.error}');
@@ -102,17 +107,20 @@ class InformationRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Text(header.toUpperCase(),
-            style: Theme.of(context)
-                .textTheme
-                .bodyText2
-                ?.copyWith(color: Theme.of(context).colorScheme.secondary)),
-        Text(info)
-      ],
+    return Container(
+      margin: const EdgeInsets.only(top: 4.0, bottom: 4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(header.toUpperCase(),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText2
+                  ?.copyWith(color: Theme.of(context).colorScheme.secondary, fontWeight: FontWeight.w500)),
+          Text(info)
+        ],
+      )
     );
   }
 }

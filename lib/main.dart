@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'data.dart';
+import 'localization.dart';
 import 'settings.dart';
 
 void main() {
@@ -40,9 +41,13 @@ class Coind extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Coind',
+      supportedLocales: const [Locale('en', '')],
+      localizationsDelegates: const [
+        AppLocalizations.delegate
+      ],
+      title: AppLocalizations.of(context)?.translate("app_name") ?? "Coind",
       theme: construct(),
-      home: const HomePage(title: 'Coind'),
+      home: HomePage(title: AppLocalizations.of(context)?.translate("app_name") ?? "Coind"),
     );
   }
 }
@@ -80,9 +85,9 @@ class _HomePageState extends State<HomePage> {
             leading: GestureDetector(
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => SettingsRoute()));
+                      MaterialPageRoute(builder: (context) => const SettingsRoute()));
                 },
-                child: Icon(Icons.menu))),
+                child: const Icon(Icons.menu))),
         body: const SizedBox(
             width: double.infinity,
             height: double.infinity,
