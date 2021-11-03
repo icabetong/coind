@@ -10,11 +10,15 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   ThemeData construct() {
-    final base = ThemeData.dark();
+    final base = ThemeData(brightness: Brightness.dark, fontFamily: 'Rubik');
     const mainColor = Color(0xff322f44);
+    const secondaryColor = Color(0xff29ccb9);
     return base.copyWith(
         scaffoldBackgroundColor: mainColor,
-        primaryColor: Colors.indigo,
+        colorScheme: base.colorScheme.copyWith(
+          primary: mainColor,
+          secondary: secondaryColor
+        ),
         cardColor: Color.lerp(mainColor, Colors.white, 0.2),
         cardTheme: base.cardTheme.copyWith(
             color: Color.lerp(mainColor, Colors.black, 0.1),
@@ -26,7 +30,12 @@ class MyApp extends StatelessWidget {
             centerTitle: true,
             titleTextStyle: base.appBarTheme.titleTextStyle?.copyWith(
               color: Color.lerp(mainColor, Colors.white, 0.7),
-            )));
+            )),
+        textTheme: base.textTheme.copyWith(
+          headline4: const TextStyle(color: Colors.white),
+          headline6: const TextStyle(color: Colors.white),
+          overline: const TextStyle(color: Colors.white)
+        ));
   }
 
   // This widget is the root of your application.
@@ -69,14 +78,11 @@ class _HomePageState extends State<HomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
         appBar: AppBar(title: Text(widget.title.toUpperCase())),
-        body: SizedBox(
+        body: const SizedBox(
             width: double.infinity,
             height: double.infinity,
             child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: const [Expanded(child: CryptoDataCard())],
-                ))));
+                padding: EdgeInsets.all(16.0),
+                child: CyptoData())));
   }
 }
