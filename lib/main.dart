@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'l10n/l10n.dart';
-import 'data.dart';
+import 'crypto.dart';
 import 'settings.dart';
 
 void main() {
@@ -99,6 +99,6 @@ class _HomePageState extends State<HomePage> {
         body: const SizedBox(
             width: double.infinity,
             height: double.infinity,
-            child: Padding(padding: EdgeInsets.all(16.0), child: CyptoData())));
+            child: CryptoDataContainer()));
   }
 }

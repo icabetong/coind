@@ -133,7 +133,6 @@ class SharedPreferencesHelper {
   Future<String?> getCurrency() async {
     sharedPreferences = await SharedPreferences.getInstance();
     String? t = sharedPreferences.getString("currency");
-    print(t);
     return t;
   }
 
