@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+import 'l10n/l10n.dart';
 import 'data.dart';
-import 'localization.dart';
 import 'settings.dart';
 
 void main() {
@@ -41,13 +44,16 @@ class Coind extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      supportedLocales: const [Locale('en', '')],
+      supportedLocales: L10n.all,
       localizationsDelegates: const [
-        AppLocalizations.delegate
+        Translations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate
       ],
-      title: AppLocalizations.of(context)?.translate("app_name") ?? "Coind",
+      title: Translations.of(context)?.app_name ?? "Coind",
       theme: construct(),
-      home: HomePage(title: AppLocalizations.of(context)?.translate("app_name") ?? "Coind"),
+      home: HomePage(title: Translations.of(context)?.app_name ?? "Coind"),
     );
   }
 }
@@ -84,8 +90,10 @@ class _HomePageState extends State<HomePage> {
             title: Text(widget.title.toUpperCase()),
             leading: GestureDetector(
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const SettingsRoute()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SettingsRoute()));
                 },
                 child: const Icon(Icons.menu))),
         body: const SizedBox(
