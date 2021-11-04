@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'data.dart';
 
 class SettingsRoute extends StatefulWidget {
   const SettingsRoute({Key? key}) : super(key: key);
@@ -21,8 +22,20 @@ class _SettingsRouteState extends State<SettingsRoute> {
     super.initState();
     helper.getCurrency().then((c) {
       setState(() {
-        currency = c!;
+        currency = c ?? "usd";
       });
+    });
+  }
+
+  void _navigateToCurrencySelection(BuildContext context) async {
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => CurrenciesScreen(currency: currency)));
+
+    helper.setCurrency(result);
+    setState(() {
+      currency = result;
     });
   }
 
@@ -44,13 +57,10 @@ class _SettingsRouteState extends State<SettingsRoute> {
             tiles: [
               SettingsTile(
                 title: Translations.of(context)!.settings_currency,
-                subtitle: currency,
+                subtitle: currencyNames[currency],
                 leading: const Icon(Icons.attach_money),
                 onPressed: (BuildContext context) {
-                  Navigator.of(context).push(CupertinoPageRoute(
-                      builder: (_) => CurrenciesScreen(
-                            currency: currency,
-                          )));
+                  _navigateToCurrencySelection(context);
                 },
               )
             ],
@@ -72,7 +82,6 @@ class CurrenciesScreen extends StatefulWidget {
 
 class _CurrenciesScreenState extends State<CurrenciesScreen> {
   SharedPreferencesHelper helper = SharedPreferencesHelper();
-  var currencies = ['php', 'usd'];
   int currencyIndex = 0;
 
   @override
@@ -88,22 +97,18 @@ class _CurrenciesScreenState extends State<CurrenciesScreen> {
         body: SettingsList(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           sections: [
-            SettingsSection(tiles: [
-              SettingsTile(
-                title: "PHP",
-                leading: trailingWidget(0),
-                onPressed: (BuildContext context) {
-                  change(0);
-                },
-              ),
-              SettingsTile(
-                title: "USD",
-                leading: trailingWidget(1),
-                onPressed: (BuildContext context) {
-                  change(1);
-                },
-              )
-            ])
+            SettingsSection(
+                tiles: currencies
+                    .asMap()
+                    .entries
+                    .map((e) => SettingsTile(
+                          title: currencyNames[e.value] ?? "",
+                          leading: trailingWidget(e.key),
+                          onPressed: (BuildContext context) {
+                            change(context, e.key);
+                          },
+                        ))
+                    .toList())
           ],
         ));
   }
@@ -114,11 +119,11 @@ class _CurrenciesScreenState extends State<CurrenciesScreen> {
         : const Icon(null);
   }
 
-  void change(int index) {
+  void change(BuildContext context, int index) {
     setState(() {
       currencyIndex = index;
-      helper.setCurrency(currencies[index]);
     });
+    Navigator.pop(context, currencies[index]);
   }
 }
 
@@ -127,7 +132,9 @@ class SharedPreferencesHelper {
 
   Future<String?> getCurrency() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.getString("currency");
+    String? t = sharedPreferences.getString("currency");
+    print(t);
+    return t;
   }
 
   Future<void> setCurrency(String currency) async {
