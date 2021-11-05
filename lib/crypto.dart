@@ -27,17 +27,13 @@ class _CryptoDataContainer extends State<CryptoDataContainer> {
   }
 
   Future<Coin> fetch() async {
-    try {
-      final response = await http.get(Uri.parse(
-          'https://api.coingecko.com/api/v3/coins/smooth-love-potion?localization=false'));
+    final response = await http.get(Uri.parse(
+        'https://api.coingecko.com/api/v3/coins/smooth-love-potion?localization=false'));
 
-      if (response.statusCode == 200) {
-        return Coin.fromJson(jsonDecode(response.body));
-      } else {
-        return Future.error(response.statusCode.toString());
-      }
-    } catch (error) {
-      return Future.error(error);
+    if (response.statusCode == 200) {
+      return Coin.fromJson(jsonDecode(response.body));
+    } else {
+      return Future.error(response.statusCode.toString());
     }
   }
 
@@ -49,83 +45,97 @@ class _CryptoDataContainer extends State<CryptoDataContainer> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        FutureBuilder<Coin>(
-            future: crypto,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(snapshot.data!.name.toUpperCase(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6
-                              ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16.0,
-                                  color: Colors.white70)),
-                      Text(
-                          '${snapshot.data!.currentPrices['php']?.toStringAsFixed(2)}',
-                          style:
-                              Theme.of(context).textTheme.headline2?.copyWith(
+    return RefreshIndicator(
+      backgroundColor: Color.lerp(
+          Theme.of(context).scaffoldBackgroundColor, Colors.black, 0.2),
+      color: Theme.of(context).colorScheme.secondary,
+      onRefresh: () async {
+        crypto = fetch();
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            FutureBuilder<Coin>(
+                future: crypto,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(snapshot.data!.name.toUpperCase(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline6
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16.0,
+                                      color: Colors.white70)),
+                          Text(
+                              '${snapshot.data!.marketData.currentPrice['php']?.toStringAsFixed(2)}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline2
+                                  ?.copyWith(
                                     fontWeight: FontWeight.w400,
                                     color: Colors.white,
                                   )),
-                      Container(
-                        margin: const EdgeInsets.only(top: 16.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TwoLineDataContainer(
-                                header: Translations.of(context)!
-                                    .data_all_time_high,
-                                subheader: formatAsDate(snapshot
-                                    .data!.allTimeHighDate['php']
-                                    .toString()),
-                                data:
-                                    'P ${snapshot.data!.allTimeHigh['php'].toStringAsFixed(2)}'),
-                            TwoLineDataContainer(
-                                header:
-                                    Translations.of(context)!.data_all_time_low,
-                                subheader: formatAsDate(snapshot
-                                    .data!.allTimeLowDate['php']
-                                    .toString()),
-                                data:
-                                    'P ${snapshot.data!.allTimeLow['php'].toStringAsFixed(2)}'),
-                            OneLineDataContainer(
-                                header: "Highest 24h",
-                                data:
-                                    'P ${snapshot.data!.highest24h['php']?.toStringAsFixed(2)}'),
-                            OneLineDataContainer(
-                                header: "Lowest 24h",
-                                data:
-                                    'P ${snapshot.data!.lowest24h['php']?.toStringAsFixed(2)}'),
-                            OneLineDataContainer(
-                                header: "Market Cap",
-                                data: 'P ${snapshot.data!.marketCap['php']}'),
-                            OneLineDataContainer(
-                                header: "All-Time Low",
-                                data:
-                                    'P ${snapshot.data!.allTimeLow['php'].toStringAsFixed(2)}'),
-                            OneLineDataContainer(
-                                header: "All-Time High",
-                                data:
-                                    'P ${snapshot.data!.allTimeHigh['php'].toStringAsFixed(2)}'),
-                          ],
-                        ),
-                      )
-                    ]);
-              } else if (snapshot.hasError) {
-                return Text('${snapshot.error}');
-              }
-              return const CircularProgressIndicator();
-            }),
-      ],
+                          Container(
+                            margin: const EdgeInsets.only(top: 16.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TwoLineDataContainer(
+                                    header: Translations.of(context)!
+                                        .data_all_time_high,
+                                    subheader: formatAsDate(snapshot
+                                        .data!.marketData.allTimeHighDate['php']
+                                        .toString()),
+                                    data:
+                                        'P ${snapshot.data!.marketData.allTimeHigh['php']?.toStringAsFixed(2)}'),
+                                TwoLineDataContainer(
+                                    header: Translations.of(context)!
+                                        .data_all_time_low,
+                                    subheader: formatAsDate(snapshot
+                                        .data!.marketData.allTimeLowDate['php']
+                                        .toString()),
+                                    data:
+                                        'P ${snapshot.data!.marketData.allTimeLow['php']?.toStringAsFixed(2)}'),
+                                OneLineDataContainer(
+                                    header: "Highest 24h",
+                                    data:
+                                        'P ${snapshot.data!.marketData.highest24h['php']?.toStringAsFixed(2)}'),
+                                OneLineDataContainer(
+                                    header: "Lowest 24h",
+                                    data:
+                                        'P ${snapshot.data!.marketData.lowest24h['php']?.toStringAsFixed(2)}'),
+                                OneLineDataContainer(
+                                    header: "Market Cap",
+                                    data:
+                                        'P ${snapshot.data!.marketData.marketCap['php']}'),
+                                OneLineDataContainer(
+                                    header: "All-Time Low",
+                                    data:
+                                        'P ${snapshot.data!.marketData.allTimeLow['php']?.toStringAsFixed(2)}'),
+                                OneLineDataContainer(
+                                    header: "All-Time High",
+                                    data:
+                                        'P ${snapshot.data!.marketData.allTimeHigh['php']?.toStringAsFixed(2)}'),
+                              ],
+                            ),
+                          )
+                        ]);
+                  } else if (snapshot.hasError) {
+                    return Text('${snapshot.error}');
+                  }
+                  return const CircularProgressIndicator();
+                }),
+          ],
+        ),
+      ),
     );
   }
 }
