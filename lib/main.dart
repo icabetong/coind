@@ -4,8 +4,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'l10n/l10n.dart';
-import 'crypto.dart';
-import 'settings.dart';
+import 'routes/crypto.dart';
+import 'routes/settings.dart';
 
 void main() {
   runApp(const Coind());

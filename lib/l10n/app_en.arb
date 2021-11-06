@@ -7,7 +7,6 @@
     "communities": "Communities",
     "market_caps": "Market Caps",
     "total_volume": "Total Volume",
-    "select_currency": "Select Currency",
     "description": "Description",
     "market_cap": "Market Cap",
     "market_cap_rank": "Market Cap Rank",
@@ -68,5 +67,7 @@
     "settings_language": "Language",
     "error_generic": "Something Failed",
     "error_generic_summary": "There was an unexpected error occured when fetching the necessary data.",
-    "error_fetch_data": "Failed to Fetch Data"
+    "error_fetch_data": "Failed to Fetch Data",
+    "select_currency": "Select Currency",
+    "select_language": "Select Language"
 }

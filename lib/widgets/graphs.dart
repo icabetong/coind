@@ -4,8 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:coind/data.dart';
-import 'package:coind/store.dart';
+import 'package:coind/domain/market_graph_data.dart';
+import 'package:coind/domain/repository.dart';
 
 class CoinPriceGraph extends StatefulWidget {
   const CoinPriceGraph({Key? key, required this.userCurrency})

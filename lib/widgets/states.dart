@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class ErrorRoute extends StatelessWidget {
-  const ErrorRoute({Key? key}) : super(key: key);
+class ErrorState extends StatelessWidget {
+  const ErrorState({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

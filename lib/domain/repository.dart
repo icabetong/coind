@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import "data.dart";
+import 'package:coind/domain/coin_data.dart';
+import 'package:coind/domain/market_graph_data.dart';
 
 class Store {
   static const endPoint = "https://api.coingecko.com/api/v3/coins";
