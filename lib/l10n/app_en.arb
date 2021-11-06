@@ -3,6 +3,8 @@
     "navigation_market_data": "Market Data",
     "navigation_settings": "Settings",
     "prices": "Prices",
+    "categories": "Categories",
+    "communities": "Communities",
     "market_caps": "Market Caps",
     "total_volume": "Total Volume",
     "select_currency": "Select Currency",
@@ -33,6 +35,33 @@
     "all_time_low": "All-Time Low",
     "no_data": "No Data",
     "infinity": "∞",
+    "chart_touch_data": "{price} at {date}",
+    "@chart_touch_data": {
+        "description": "Interpolate both a human formatted date value and a currency value for the line chart",
+        "placeholders": {
+            "price": {
+                "type": "String",
+                "example": "USD6.50"
+            },
+            "date": {
+                "type": "String",
+                "example": "Oct 1, 2010"
+            }
+        }
+    },
+    "last_updated": "Last Updated: {date}",
+    "@last_updated": {
+        "description": "Interpolate a human formatted date value to inform the user about the last update date",
+        "placeholders": {
+            "date": {
+                "type": "String",
+                "example": "Oct 1, 2010"
+            }
+        }
+    },
+    "data_provider": "Data Provided by CoinGecko",
+    "button_more": "Show More",
+    "button_less": "Show Less",
     "button_view_market_data": "View Market Data",
     "settings_group_localization": "Regional",
     "settings_currency": "Currency",

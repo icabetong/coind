@@ -1,11 +1,12 @@
 import 'dart:async';
-
 import 'package:coind/states.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:expandable_text/expandable_text.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'data.dart';
 import 'graphs.dart';
 import 'settings.dart';
@@ -81,6 +82,7 @@ class CryptoDataContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    DateFormat dateFormat = DateFormat("M d yyyy, h:mm a");
     NumberFormat currencyFormat =
         NumberFormat.currency(symbol: userCurrency.toUpperCase());
     NumberFormat currencyShortFormat =
@@ -109,7 +111,7 @@ class CryptoDataContainer extends StatelessWidget {
                       )),
               ChartContainer(
                   title: "Chart",
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   chart: CoinPriceGraph(
                     userCurrency: userCurrency,
                   )),
@@ -170,9 +172,30 @@ class CryptoDataContainer extends StatelessWidget {
                                         .colorScheme
                                         .secondary)),
                           ),
-                          Text(coin.description['en']!)
+                          ExpandableText(
+                            coin.description['en']!,
+                            maxLines: 4,
+                            expandText: Translations.of(context)!.button_more,
+                            collapseText: Translations.of(context)!.button_less,
+                          )
                         ],
-                      )
+                      ),
+                    InformationWithChip(
+                        header: Translations.of(context)!.categories,
+                        data: coin.categories.asMap()),
+                    if (coin.lastUpdated != null)
+                      Container(
+                        alignment: Alignment.centerRight,
+                        margin: const EdgeInsets.only(top: 24),
+                        child: Text(
+                            Translations.of(context)!.last_updated(
+                                dateFormat.format(coin.lastUpdated!)),
+                            style: const TextStyle(color: Colors.white54)),
+                      ),
+                    Container(
+                        alignment: Alignment.centerRight,
+                        margin: const EdgeInsets.only(bottom: 16.0),
+                        child: Text(Translations.of(context)!.data_provider))
                   ],
                 ),
               )
@@ -329,6 +352,61 @@ class MarketDataRoute extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class InformationWithChip extends StatelessWidget {
+  const InformationWithChip(
+      {Key? key, required this.header, required this.data, this.isUrls = false})
+      : super(key: key);
+
+  final String header;
+  final Map<dynamic, String> data;
+  final bool isUrls;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Text(header,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14.0,
+                )),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Wrap(
+                spacing: 8.0,
+                runSpacing: 0,
+                children: data.entries.map((e) {
+                  return isUrls
+                      ? Chip(
+                          label: Text(e.value.toString()),
+                          labelPadding:
+                              const EdgeInsets.symmetric(horizontal: 8),
+                        )
+                      : ActionChip(
+                          label: Text(e.value.toString()),
+                          labelPadding:
+                              const EdgeInsets.symmetric(horizontal: 8),
+                          onPressed: () async {
+                            print(e.key);
+                            await canLaunch(e.key)
+                                ? await launch(e.key)
+                                : print("error");
+                          },
+                        );
+                }).toList(),
+              ),
+            )
+          ],
+        ));
   }
 }
 

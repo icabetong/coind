@@ -21,8 +21,7 @@ class Coind extends StatelessWidget {
     return base.copyWith(
         scaffoldBackgroundColor: mainColor,
         colorScheme: base.colorScheme.copyWith(
-            primary: mainColor,
-            secondary: secondaryColor,
+            primary: secondaryColor,
             surface: Color.lerp(mainColor, Colors.white, 0.2)),
         cardColor: Color.lerp(mainColor, Colors.white, 0.2),
         cardTheme: base.cardTheme.copyWith(
@@ -38,8 +37,12 @@ class Coind extends StatelessWidget {
             )),
         progressIndicatorTheme:
             base.progressIndicatorTheme.copyWith(color: secondaryColor),
-        popupMenuTheme: base.popupMenuTheme
-            .copyWith(color: Color.lerp(mainColor, Colors.white, 0.1)),
+        popupMenuTheme: base.popupMenuTheme.copyWith(
+            color: Color.lerp(mainColor, Colors.white, 0.1),
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(4)))),
+        chipTheme: base.chipTheme.copyWith(
+            backgroundColor: Color.lerp(mainColor, Colors.white, 0.1)),
         textTheme: base.textTheme.copyWith(
             headline4: const TextStyle(color: Colors.white),
             headline6: const TextStyle(color: Colors.white),

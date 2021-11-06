@@ -48,11 +48,11 @@ class _CoinPriceGraph extends State<CoinPriceGraph> {
               LineChartData(
                 lineTouchData: LineTouchData(touchTooltipData:
                     LineTouchTooltipData(getTooltipItems: (values) {
-                  return values
-                      .map((e) => LineTooltipItem(
-                          currencyFormat.format(e.y.toDouble()),
-                          const TextStyle(color: Colors.white)))
-                      .toList();
+                  return values.map((e) {
+                    return LineTooltipItem(
+                        currencyFormat.format(e.y.toDouble()),
+                        const TextStyle(color: Colors.white));
+                  }).toList();
                 })),
                 borderData: FlBorderData(
                     border: Border.all(color: Colors.white, width: 0)),
