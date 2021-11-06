@@ -7,6 +7,16 @@ import 'package:coind/domain/market_graph_data.dart';
 class Store {
   static const endPoint = "https://api.coingecko.com/api/v3/coins";
 
+  static Future<List<Coin>> fetchCoins({bool includePlatform = false}) async {
+    final response = await http.get(Uri.parse('$endPoint/list'));
+
+    if (response.statusCode == 200) {
+      return List<Coin>.from(jsonDecode(response.body));
+    } else {
+      return Future.error(response.statusCode.toString());
+    }
+  }
+
   static Future<Coin> fetchCoinData(
     String id, {
     bool localization = false,

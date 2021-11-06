@@ -121,3 +121,6 @@ var currencyNames = {
   "link": "Chainlink",
   "sats": "Satoshi"
 };
+
+const languages = ['en'];
+const languageNames = {"en": "English"};

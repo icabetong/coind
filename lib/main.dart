@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'l10n/l10n.dart';
-import 'routes/crypto.dart';
+import 'routes/crypto_data.dart';
 import 'routes/settings.dart';
 
 void main() {
@@ -107,18 +107,23 @@ class _HomePageState extends State<HomePage> {
                   PopupMenuItem<String>(
                     value: "action:settings",
                     child: Text(Translations.of(context)!.navigation_settings),
-                  )
+                  ),
+                  PopupMenuItem<String>(
+                      value: "action:about",
+                      child: Text(Translations.of(context)!.navigation_about))
                 ];
               },
               onSelected: (result) {
                 switch (result) {
-                  case "action:refresh":
-                    break;
                   case "action:settings":
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => const SettingsRoute()));
+                    break;
+                  case "action:about":
+                    break;
+                  default:
                     break;
                 }
               },

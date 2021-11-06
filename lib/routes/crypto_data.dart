@@ -8,7 +8,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:coind/domain/coin_data.dart';
 import 'package:coind/domain/market_data.dart';
-import 'package:coind/domain/repository.dart';
+import 'package:coind/domain/store.dart';
 import 'package:coind/routes/market_data.dart';
 import 'package:coind/routes/settings.dart';
 import 'package:coind/widgets/data_container.dart';
