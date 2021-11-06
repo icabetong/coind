@@ -427,10 +427,11 @@ class ThreeDataContainer extends StatelessWidget {
                 Container(
                     margin: const EdgeInsets.only(left: 8.0),
                     child: Text(siblingData,
-                        style: const TextStyle(color: Colors.white60)))
+                        style: const TextStyle(
+                            color: Colors.white54, fontSize: 16.0)))
               ],
             ),
-            Text(supportingData, style: Theme.of(context).textTheme.overline)
+            Text(supportingData, style: const TextStyle(color: Colors.white))
           ])
         ],
       ),

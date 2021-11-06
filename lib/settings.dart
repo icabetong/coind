@@ -93,7 +93,7 @@ class _CurrenciesScreenState extends State<CurrenciesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text(Translations.of(context)!.app_name)),
+        appBar: AppBar(title: Text(Translations.of(context)!.select_currency)),
         body: SettingsList(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           sections: [

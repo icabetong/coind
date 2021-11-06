@@ -39,7 +39,8 @@ class _CoinPriceGraph extends State<CoinPriceGraph> {
   @override
   Widget build(BuildContext context) {
     DateFormat dateFormat = DateFormat("h:mm aa");
-    NumberFormat currencyFormat = NumberFormat.currency();
+    NumberFormat currencyFormat =
+        NumberFormat.currency(symbol: widget.userCurrency.toUpperCase());
 
     return FutureBuilder<MarketChart>(
         future: chart,
@@ -54,6 +55,14 @@ class _CoinPriceGraph extends State<CoinPriceGraph> {
 
             return LineChart(
               LineChartData(
+                lineTouchData: LineTouchData(touchTooltipData:
+                    LineTouchTooltipData(getTooltipItems: (values) {
+                  return values
+                      .map((e) => LineTooltipItem(
+                          currencyFormat.format(e.y.toDouble()),
+                          const TextStyle(color: Colors.white)))
+                      .toList();
+                })),
                 borderData: FlBorderData(
                     border: Border.all(color: Colors.white, width: 0)),
                 gridData: FlGridData(
@@ -120,7 +129,7 @@ class ChartContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 16),
+        margin: const EdgeInsets.symmetric(vertical: 24.0),
         width: MediaQuery.of(context).size.width * 0.95,
         height: MediaQuery.of(context).size.width * 0.95 * 0.75,
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),

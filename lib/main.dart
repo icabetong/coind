@@ -20,8 +20,10 @@ class Coind extends StatelessWidget {
     const secondaryColor = Color(0xff29ccb9);
     return base.copyWith(
         scaffoldBackgroundColor: mainColor,
-        colorScheme: base.colorScheme
-            .copyWith(primary: mainColor, secondary: secondaryColor),
+        colorScheme: base.colorScheme.copyWith(
+            primary: mainColor,
+            secondary: secondaryColor,
+            surface: Color.lerp(mainColor, Colors.white, 0.2)),
         cardColor: Color.lerp(mainColor, Colors.white, 0.2),
         cardTheme: base.cardTheme.copyWith(
             color: Color.lerp(mainColor, Colors.black, 0.1),
@@ -89,15 +91,35 @@ class _HomePageState extends State<HomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
         appBar: AppBar(
-            title: Text(widget.title.toUpperCase()),
-            leading: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const SettingsRoute()));
-                },
-                child: const Icon(Icons.menu))),
+          title: Text(widget.title.toUpperCase()),
+          leading: GestureDetector(onTap: () {}, child: const Icon(Icons.menu)),
+          actions: <Widget>[
+            IconButton(
+                onPressed: () {}, icon: const Icon(Icons.search_outlined)),
+            PopupMenuButton(
+              itemBuilder: (BuildContext context) {
+                return [
+                  PopupMenuItem<String>(
+                    value: "action:settings",
+                    child: Text(Translations.of(context)!.navigation_settings),
+                  )
+                ];
+              },
+              onSelected: (result) {
+                switch (result) {
+                  case "action:refresh":
+                    break;
+                  case "action:settings":
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SettingsRoute()));
+                    break;
+                }
+              },
+            )
+          ],
+        ),
         body: const SizedBox(
             width: double.infinity,
             height: double.infinity,
