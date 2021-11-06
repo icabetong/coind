@@ -99,7 +99,6 @@ class _HomePageState extends State<HomePage> {
         body: const SizedBox(
             width: double.infinity,
             height: double.infinity,
-            child: Padding(
-                padding: EdgeInsets.all(16.0), child: CryptoDataContainer())));
+            child: CryptoDataRoute()));
   }
 }

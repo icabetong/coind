@@ -3,6 +3,7 @@ class Coin {
   final String symbol;
   final String name;
   final DateTime? lastUpdated;
+  final Map<String, String> description;
   final MarketData marketData;
 
   Coin(
@@ -10,6 +11,7 @@ class Coin {
       required this.symbol,
       required this.name,
       required this.lastUpdated,
+      required this.description,
       required this.marketData});
 
   factory Coin.fromJson(Map<String, dynamic> json) {
@@ -18,6 +20,7 @@ class Coin {
         symbol: json['symbol'],
         name: json['name'],
         lastUpdated: DateTime.tryParse(json['last_updated']),
+        description: Map<String, String>.from(json['description']),
         marketData: MarketData.fromJson(
             Map<String, dynamic>.from(json['market_data'])));
   }
@@ -33,7 +36,7 @@ class ReturnOfInvestment {
 
   factory ReturnOfInvestment.from(Map<String, dynamic> json) {
     return ReturnOfInvestment(
-        times: json["times"],
+        times: json["times"] ?? 0,
         currency: json["currency"],
         percentage: json["percentage"]);
   }
@@ -74,7 +77,7 @@ class MarketData {
   final Map<String, num> priceChangePercentage1yInCurrency;
   final Map<String, num> marketCapChangePercentage24InCurrency;
   final Map<String, int> fullyDilutedValuation;
-  final Map<String, int>? totalValueLocked;
+  final Map<String, int> totalValueLocked;
   final String? marketCapToTradeValueLockedRatio;
   final String? fullyDilutedValuationToTradeVolumeRatio;
   final num totalSupply;
@@ -128,13 +131,15 @@ class MarketData {
   factory MarketData.fromJson(Map<String, dynamic> json) {
     return MarketData(
         currentPrice: Map<String, num>.from(json['current_price']),
-        returnOfInvestment: null,
+        returnOfInvestment: json['roi'] != null
+            ? ReturnOfInvestment.from(Map<String, dynamic>.from(json['roi']))
+            : null,
         allTimeHigh: Map<String, num>.from(json['ath']),
         allTimeHighChange: Map<String, num>.from(json['ath_change_percentage']),
         allTimeHighDate: Map<String, String>.from(json['ath_date']),
         allTimeLow: Map<String, num>.from(json['atl']),
         allTimeLowChange: Map<String, num>.from(json['ath_change_percentage']),
-        allTimeLowDate: Map<String, String>.from(json['ath_date']),
+        allTimeLowDate: Map<String, String>.from(json['atl_date']),
         marketCap: Map<String, num>.from(json['market_cap']),
         marketCapRank: json['market_cap_rank'],
         totalVolume: Map<String, num>.from(json['total_volume']),
@@ -172,7 +177,9 @@ class MarketData {
             json['market_cap_change_percentage_24h_in_currency']),
         fullyDilutedValuation:
             Map<String, int>.from(json['fully_diluted_valuation']),
-        totalValueLocked: null,
+        totalValueLocked: json['total_value_locked'] != null
+            ? Map<String, int>.from(json['total_value_locked'])
+            : {},
         marketCapToTradeValueLockedRatio: json['mcap_to_tvl_ratio'],
         fullyDilutedValuationToTradeVolumeRatio: json['fdv_to_tvl_ratio'],
         totalSupply: json['total_supply'],
@@ -191,6 +198,33 @@ class MarketChart {
       {required this.prices,
       required this.marketCaps,
       required this.totalVolume});
+
+  static double findLowestValue(Map<double, double> data) {
+    return data.values.reduce((curr, next) => curr < next ? curr : next);
+  }
+
+  static double findLowestKey(Map<double, double> data) {
+    return data.keys.reduce((curr, next) => curr < next ? curr : next);
+  }
+
+  static double findHighestValue(Map<double, double> data) {
+    return data.values.reduce((curr, next) => curr > next ? curr : next);
+  }
+
+  static double findHighestKey(Map<double, double> data) {
+    return data.keys.reduce((curr, next) => curr > next ? curr : next);
+  }
+
+  static Map<double, double> convert(List<dynamic> items) {
+    return Map.fromIterable(items, key: (element) {
+      String data = element.toString();
+      return double.parse(data.substring(1, data.indexOf(',')));
+    }, value: (element) {
+      String data = element.toString();
+      return double.parse(
+          data.substring(data.indexOf(',') + 2, data.length - 1));
+    });
+  }
 
   factory MarketChart.fromJson(Map<String, dynamic> json) {
     return MarketChart(
@@ -282,8 +316,8 @@ var currencyNames = {
   "eth": "Ethereum",
   "eur": "Euro",
   "gbp": "British Pound",
-  "hkd": "Hong-",
-  "huf": "Hong Kong Dollar",
+  "hkd": "Hong-Kong Dollar",
+  "huf": "Hungarian Forint",
   "idr": "Indonesian Rupiah",
   "ils": "Israeli New Shekel",
   "inr": "Indian Rupee",
