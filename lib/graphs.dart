@@ -38,7 +38,8 @@ class _CoinPriceGraph extends State<CoinPriceGraph> {
 
   @override
   Widget build(BuildContext context) {
-    DateFormat dateFormat = DateFormat("H:mm aa");
+    DateFormat dateFormat = DateFormat("h:mm aa");
+    NumberFormat currencyFormat = NumberFormat.currency();
 
     return FutureBuilder<MarketChart>(
         future: chart,
@@ -84,6 +85,7 @@ class _CoinPriceGraph extends State<CoinPriceGraph> {
                 lineBarsData: [
                   LineChartBarData(
                       colors: [Theme.of(context).colorScheme.secondary],
+                      dotData: FlDotData(show: false),
                       isCurved: true,
                       spots: data.entries
                           .map((e) => FlSpot(e.key, e.value))
@@ -95,7 +97,9 @@ class _CoinPriceGraph extends State<CoinPriceGraph> {
             return Text(snapshot.error.toString());
           }
 
-          return const CircularProgressIndicator();
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         });
   }
 }

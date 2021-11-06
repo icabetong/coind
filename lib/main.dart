@@ -34,6 +34,8 @@ class Coind extends StatelessWidget {
             titleTextStyle: base.appBarTheme.titleTextStyle?.copyWith(
               color: Color.lerp(mainColor, Colors.white, 0.7),
             )),
+        progressIndicatorTheme:
+            base.progressIndicatorTheme.copyWith(color: secondaryColor),
         textTheme: base.textTheme.copyWith(
             headline4: const TextStyle(color: Colors.white),
             headline6: const TextStyle(color: Colors.white),
