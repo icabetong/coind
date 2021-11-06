@@ -43,7 +43,6 @@ class Links {
   final String? bitcoinTalkThreadId;
   final String? telegramChannelId;
   final String? subredditUrl;
-  final List<String> repositories;
 
   Links(
       {required this.homepage,
@@ -55,22 +54,21 @@ class Links {
       required this.facebookUsername,
       required this.bitcoinTalkThreadId,
       required this.telegramChannelId,
-      required this.subredditUrl,
-      required this.repositories});
+      required this.subredditUrl});
 
   factory Links.from(Map<String, dynamic> json) {
     return Links(
-        homepage: List<String>.from(json['announcements']),
-        blockchainSites: List<String>.from(json['blockchain_site']),
-        forums: List<String>.from(json['official_forum_url']),
-        chatUrls: List<String>.from(json['chat_url']),
-        announcements: List<String>.from(json['announcement_url']),
-        twitterName: json['twitter_screen_name'],
-        facebookUsername: json['facebook_username'],
-        bitcoinTalkThreadId: json['bitcointalk_thread_identifier'],
-        telegramChannelId: json['telegram_channel_identifier'],
-        subredditUrl: json['subreddit_url'],
-        repositories: List<String>.from(json['repos_url']));
+      homepage: List<String>.from(json['homepage']),
+      blockchainSites: List<String>.from(json['blockchain_site']),
+      forums: List<String>.from(json['official_forum_url']),
+      chatUrls: List<String>.from(json['chat_url']),
+      announcements: List<String>.from(json['announcement_url']),
+      twitterName: json['twitter_screen_name'],
+      facebookUsername: json['facebook_username'],
+      bitcoinTalkThreadId: json['bitcointalk_thread_identifier'],
+      telegramChannelId: json['telegram_channel_identifier'],
+      subredditUrl: json['subreddit_url'],
+    );
   }
 }
 
