@@ -1,15 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
 
+import 'package:coind/states.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'data.dart';
 import 'graphs.dart';
 import 'settings.dart';
+import 'store.dart';
 
 class CryptoDataRoute extends StatefulWidget {
   const CryptoDataRoute({Key? key}) : super(key: key);
@@ -24,24 +24,19 @@ class _CryptoDataRoute extends State<CryptoDataRoute> {
   String userCurrency = "usd";
   late Future<Coin> crypto;
 
-  Future<Coin> fetch() async {
-    final response = await http.get(Uri.parse(
-        'https://api.coingecko.com/api/v3/coins/smooth-love-potion?localization=false&tickers=false&community_data=false&developer_data=false'));
-
-    if (response.statusCode == 200) {
-      return Coin.fromJson(jsonDecode(response.body));
-    } else {
-      return Future.error(response.statusCode.toString());
-    }
+  void _prepare() {
+    setState(() {
+      crypto = Store.fetchCoinData('smooth-love-potion');
+      helper.getCurrency().then((c) {
+        userCurrency = c ?? "usd";
+      });
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    crypto = fetch();
-    helper.getCurrency().then((c) {
-      userCurrency = c ?? "usd";
-    });
+    _prepare();
   }
 
   @override
@@ -51,12 +46,7 @@ class _CryptoDataRoute extends State<CryptoDataRoute> {
           Theme.of(context).scaffoldBackgroundColor, Colors.black, 0.2),
       color: Theme.of(context).colorScheme.secondary,
       onRefresh: () async {
-        setState(() {
-          crypto = fetch();
-          helper.getCurrency().then((c) {
-            userCurrency = c ?? "usd";
-          });
-        });
+        _prepare();
       },
       child: FutureBuilder<Coin>(
           future: crypto,
@@ -65,7 +55,7 @@ class _CryptoDataRoute extends State<CryptoDataRoute> {
               return CryptoDataContainer(
                   coin: snapshot.data!, userCurrency: userCurrency);
             } else if (snapshot.hasError) {
-              return Text('${snapshot.error}');
+              return const ErrorRoute();
             }
             return const Center(child: CircularProgressIndicator());
           }),
@@ -368,7 +358,7 @@ class TwoLineDataCard extends StatelessWidget {
                 header.toUpperCase(),
                 style: const TextStyle(
                     color: Colors.white60,
-                    fontSize: 12.0,
+                    fontSize: 14.0,
                     fontWeight: FontWeight.w600),
               ),
               Container(
@@ -379,7 +369,7 @@ class TwoLineDataCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         fontSize: 24.0)),
               ),
-              Text(supportingData, style: const TextStyle(fontSize: 14.0))
+              Text(supportingData, style: const TextStyle(fontSize: 16.0))
             ],
           ),
         ));
@@ -403,7 +393,7 @@ class ThreeDataContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         mainAxisSize: MainAxisSize.max,
@@ -412,7 +402,7 @@ class ThreeDataContainer extends StatelessWidget {
               style: TextStyle(
                 color: Theme.of(context).colorScheme.secondary,
                 fontWeight: FontWeight.w500,
-                fontSize: 14.0,
+                fontSize: 16.0,
               )),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Row(
@@ -420,7 +410,7 @@ class ThreeDataContainer extends StatelessWidget {
               children: [
                 Text(mainData,
                     style: const TextStyle(
-                      fontSize: 16.0,
+                      fontSize: 18.0,
                       fontWeight: FontWeight.w400,
                       color: Colors.white,
                     )),
@@ -454,7 +444,7 @@ class TwoLineDataContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         mainAxisSize: MainAxisSize.max,
@@ -463,12 +453,12 @@ class TwoLineDataContainer extends StatelessWidget {
               style: TextStyle(
                 color: Theme.of(context).colorScheme.secondary,
                 fontWeight: FontWeight.w500,
-                fontSize: 14.0,
+                fontSize: 16.0,
               )),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text(mainData,
                 style: const TextStyle(
-                  fontSize: 16.0,
+                  fontSize: 18.0,
                   fontWeight: FontWeight.w400,
                   color: Colors.white,
                 )),
@@ -491,7 +481,7 @@ class OneLineDataContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -500,10 +490,10 @@ class OneLineDataContainer extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2?.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
                     fontWeight: FontWeight.w500,
-                    fontSize: 14.0)),
+                    fontSize: 16.0)),
             Text(data,
                 style: const TextStyle(
-                  fontSize: 16.0,
+                  fontSize: 18.0,
                   fontWeight: FontWeight.w400,
                   color: Colors.white,
                 ))

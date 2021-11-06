@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:http/http.dart' as http;
 import 'package:coind/data.dart';
+import 'package:coind/store.dart';
 
 class CoinPriceGraph extends StatefulWidget {
   const CoinPriceGraph({Key? key, required this.userCurrency})
@@ -19,21 +19,12 @@ class CoinPriceGraph extends StatefulWidget {
 
 class _CoinPriceGraph extends State<CoinPriceGraph> {
   late Future<MarketChart> chart;
-  Future<MarketChart> fetch() async {
-    final response = await http.get(Uri.parse(
-        'https://api.coingecko.com/api/v3/coins/smooth-love-potion/market_chart?vs_currency=php&days=2'));
-
-    if (response.statusCode == 200) {
-      return MarketChart.fromJson(jsonDecode(response.body));
-    } else {
-      return Future.error(response.statusCode.toString());
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    chart = fetch();
+    chart =
+        Store.fetchMarketChart('smooth-love-potion', widget.userCurrency, 2);
   }
 
   @override
@@ -103,7 +94,7 @@ class _CoinPriceGraph extends State<CoinPriceGraph> {
               ),
             );
           } else if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
+            return Text(Translations.of(context)!.error_fetch_data);
           }
 
           return const Center(

@@ -4,6 +4,8 @@ class Coin {
   final String name;
   final DateTime? lastUpdated;
   final Map<String, String> description;
+  final List<String> categories;
+  final Links links;
   final MarketData marketData;
 
   Coin(
@@ -12,6 +14,8 @@ class Coin {
       required this.name,
       required this.lastUpdated,
       required this.description,
+      required this.categories,
+      required this.links,
       required this.marketData});
 
   factory Coin.fromJson(Map<String, dynamic> json) {
@@ -21,8 +25,52 @@ class Coin {
         name: json['name'],
         lastUpdated: DateTime.tryParse(json['last_updated']),
         description: Map<String, String>.from(json['description']),
+        categories: List<String>.from(json['categories']),
+        links: Links.from(json['links']),
         marketData: MarketData.fromJson(
             Map<String, dynamic>.from(json['market_data'])));
+  }
+}
+
+class Links {
+  final List<String> homepage;
+  final List<String> blockchainSites;
+  final List<String> forums;
+  final List<String> chatUrls;
+  final List<String> announcements;
+  final String? twitterName;
+  final String? facebookUsername;
+  final String? bitcoinTalkThreadId;
+  final String? telegramChannelId;
+  final String? subredditUrl;
+  final List<String> repositories;
+
+  Links(
+      {required this.homepage,
+      required this.blockchainSites,
+      required this.forums,
+      required this.chatUrls,
+      required this.announcements,
+      required this.twitterName,
+      required this.facebookUsername,
+      required this.bitcoinTalkThreadId,
+      required this.telegramChannelId,
+      required this.subredditUrl,
+      required this.repositories});
+
+  factory Links.from(Map<String, dynamic> json) {
+    return Links(
+        homepage: List<String>.from(json['announcements']),
+        blockchainSites: List<String>.from(json['blockchain_site']),
+        forums: List<String>.from(json['official_forum_url']),
+        chatUrls: List<String>.from(json['chat_url']),
+        announcements: List<String>.from(json['announcement_url']),
+        twitterName: json['twitter_screen_name'],
+        facebookUsername: json['facebook_username'],
+        bitcoinTalkThreadId: json['bitcointalk_thread_identifier'],
+        telegramChannelId: json['telegram_channel_identifier'],
+        subredditUrl: json['subreddit_url'],
+        repositories: List<String>.from(json['repos_url']));
   }
 }
 

@@ -35,5 +35,9 @@
     "infinity": "∞",
     "button_view_market_data": "View Market Data",
     "settings_group_localization": "Regional",
-    "settings_currency": "Currency"
+    "settings_currency": "Currency",
+    "settings_language": "Language",
+    "error_generic": "Something Failed",
+    "error_generic_summary": "There was an unexpected error occured when fetching the necessary data.",
+    "error_fetch_data": "Failed to Fetch Data"
 }

@@ -38,6 +38,8 @@ class Coind extends StatelessWidget {
             )),
         progressIndicatorTheme:
             base.progressIndicatorTheme.copyWith(color: secondaryColor),
+        popupMenuTheme: base.popupMenuTheme
+            .copyWith(color: Color.lerp(mainColor, Colors.white, 0.1)),
         textTheme: base.textTheme.copyWith(
             headline4: const TextStyle(color: Colors.white),
             headline6: const TextStyle(color: Colors.white),

@@ -15,7 +15,7 @@ class SettingsRoute extends StatefulWidget {
 
 class _SettingsRouteState extends State<SettingsRoute> {
   SharedPreferencesHelper helper = SharedPreferencesHelper();
-  String currency = "php";
+  String currency = "usd";
 
   @override
   void initState() {
