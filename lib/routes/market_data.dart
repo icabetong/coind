@@ -28,7 +28,7 @@ class MarketDataRoute extends StatelessWidget {
     NumberFormat shortCurrencyFormat =
         NumberFormat.compactCurrency(symbol: userCurrency.toUpperCase());
     NumberFormat percentFormat = NumberFormat.percentPattern();
-    DateFormat dateFormat = DateFormat("M d yyyy");
+    DateFormat dateFormat = DateFormat("MMM d yyyy-hh:mm a");
     return Scaffold(
       appBar:
           AppBar(title: Text(Translations.of(context)!.navigation_market_data)),
