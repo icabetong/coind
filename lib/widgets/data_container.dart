@@ -12,7 +12,7 @@ class InformationWithChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0),
+        padding: const EdgeInsets.only(top: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -30,8 +30,13 @@ class InformationWithChip extends StatelessWidget {
                 spacing: 8.0,
                 runSpacing: 0,
                 children: data.map((e) {
+                  String text = e;
+                  if (text.startsWith("http")) {
+                    text = e.substring(e.indexOf('//') + 2, e.lastIndexOf('/'));
+                  }
+
                   return Chip(
-                    label: Text(e),
+                    label: Text(text),
                     labelPadding: const EdgeInsets.symmetric(horizontal: 8),
                   );
                 }).toList(),

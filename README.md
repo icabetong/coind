@@ -1,16 +1,18 @@
 # coind
 
-A new Flutter project.
+A cryptocurrency app for viewing the current information about the cryptos.
 
-## Getting Started
+## Built With
+* Flutter
 
-This project is a starting point for a Flutter application.
+## Versioning
 
-A few resources to get you started if this is your first Flutter project:
+We use [SemVer](http://www.semver.org) for versioning. For the versions available, see the [tags on this repository](https://github.com/asayah-san/fokus-android/tags)
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## Licenses
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+This project is licensed under the GPL-3.0 - see the license file for more details
+
+## Contributing
+
+This is an open-source personal project and I am very happy to accept community contributions. Open a PR to get started.

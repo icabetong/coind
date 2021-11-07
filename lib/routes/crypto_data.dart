@@ -113,11 +113,8 @@ class CryptoDataContainer extends StatelessWidget {
                         color: Colors.white,
                       )),
               ChartContainer(
-                  title: "Chart",
                   color: Theme.of(context).scaffoldBackgroundColor,
-                  chart: CoinPriceGraph(
-                    userCurrency: userCurrency,
-                  )),
+                  chart: CoinPriceGraph(userCurrency: userCurrency)),
               Container(
                 margin: const EdgeInsets.only(top: 16.0),
                 child: Column(
@@ -186,6 +183,9 @@ class CryptoDataContainer extends StatelessWidget {
                     InformationWithChip(
                         header: Translations.of(context)!.categories,
                         data: coin.categories),
+                    InformationWithChip(
+                        header: Translations.of(context)!.communities,
+                        data: coin.links.getWebsites()),
                     if (coin.lastUpdated != null)
                       Container(
                         alignment: Alignment.centerRight,

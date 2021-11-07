@@ -66,6 +66,22 @@ class Links {
       required this.subredditUrl,
       required this.repositories});
 
+  List<String> getWebsites() {
+    List<String> websites = [];
+    for (var element in homepage) {
+      if (element.isNotEmpty) {
+        websites.add(element);
+      }
+    }
+    for (var element in announcements) {
+      if (element.isNotEmpty) {
+        websites.add(element);
+      }
+    }
+
+    return websites;
+  }
+
   Map<String, String> getCommunities() {
     Map<String, String> communities = {};
     if (facebookUsername != null) {

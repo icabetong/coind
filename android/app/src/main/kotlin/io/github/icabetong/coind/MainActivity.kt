@@ -1,4 +1,4 @@
-package com.example.coind
+package io.github.icabetong.coind
 
 import io.flutter.embedding.android.FlutterActivity
 

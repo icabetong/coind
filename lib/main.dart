@@ -1,3 +1,5 @@
+import 'package:coind/routes/about.dart';
+import 'package:coind/routes/crypto_list.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -20,8 +22,10 @@ class Coind extends StatelessWidget {
     const secondaryColor = Color(0xff29ccb9);
     return base.copyWith(
         scaffoldBackgroundColor: mainColor,
+        backgroundColor: mainColor,
         colorScheme: base.colorScheme.copyWith(
             primary: secondaryColor,
+            background: mainColor,
             surface: Color.lerp(mainColor, Colors.white, 0.2)),
         cardColor: Color.lerp(mainColor, Colors.white, 0.2),
         cardTheme: base.cardTheme.copyWith(
@@ -97,10 +101,15 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title.toUpperCase()),
-          leading: GestureDetector(onTap: () {}, child: const Icon(Icons.menu)),
+          leading: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const CryptoListRoute()));
+              },
+              child: const Icon(Icons.search)),
           actions: <Widget>[
-            IconButton(
-                onPressed: () {}, icon: const Icon(Icons.search_outlined)),
             PopupMenuButton(
               itemBuilder: (BuildContext context) {
                 return [
@@ -122,6 +131,10 @@ class _HomePageState extends State<HomePage> {
                             builder: (context) => const SettingsRoute()));
                     break;
                   case "action:about":
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const AboutRoute()));
                     break;
                   default:
                     break;
