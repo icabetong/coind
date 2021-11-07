@@ -8,11 +8,12 @@ import 'package:coind/domain/market_graph_data.dart';
 import 'package:coind/domain/store.dart';
 
 class CoinPriceGraph extends StatefulWidget {
-  const CoinPriceGraph({Key? key, required this.userCurrency, this.index = 0})
+  const CoinPriceGraph(
+      {Key? key, required this.userCurrency, required this.source})
       : super(key: key);
 
   final String userCurrency;
-  final int index;
+  final String source;
 
   @override
   State<CoinPriceGraph> createState() => _CoinPriceGraph();
@@ -39,14 +40,14 @@ class _CoinPriceGraph extends State<CoinPriceGraph> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<dynamic> items = [];
-            switch (widget.index) {
-              case 1:
+            switch (widget.source) {
+              case "prices":
                 items = snapshot.data!.prices;
                 break;
-              case 2:
+              case "market-caps":
                 items = snapshot.data!.marketCaps;
                 break;
-              case 3:
+              case "total-volume":
                 items = snapshot.data!.totalVolume;
                 break;
               default:
@@ -86,8 +87,8 @@ class _CoinPriceGraph extends State<CoinPriceGraph> {
                     },
                   ),
                   leftTitles: SideTitles(
-                    interval: 0.5,
                     showTitles: true,
+                    interval: 0.5,
                     getTitles: (value) {
                       return value.toDouble().toStringAsFixed(1);
                     },
@@ -119,15 +120,17 @@ class _CoinPriceGraph extends State<CoinPriceGraph> {
   }
 }
 
-class ChartContainer extends StatelessWidget {
-  final Color color;
-  final Widget chart;
+class ChartContainer extends StatefulWidget {
+  final String currency;
 
-  const ChartContainer({
-    Key? key,
-    required this.color,
-    required this.chart,
-  }) : super(key: key);
+  const ChartContainer({Key? key, required this.currency}) : super(key: key);
+
+  @override
+  State<ChartContainer> createState() => _ChartContainerState();
+}
+
+class _ChartContainerState extends State<ChartContainer> {
+  String dataSource = "prices";
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +140,7 @@ class ChartContainer extends StatelessWidget {
         height: MediaQuery.of(context).size.width * 0.95 * 0.65,
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
         decoration: BoxDecoration(
-          color: color,
+          color: Theme.of(context).backgroundColor,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -148,7 +151,8 @@ class ChartContainer extends StatelessWidget {
                 child: Container(
               margin: const EdgeInsets.symmetric(vertical: 24.0),
               padding: const EdgeInsets.all(4.0),
-              child: chart,
+              child: CoinPriceGraph(
+                  userCurrency: widget.currency, source: dataSource),
             ))
           ],
         ),

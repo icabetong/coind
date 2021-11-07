@@ -112,9 +112,7 @@ class CryptoDataContainer extends StatelessWidget {
                         fontWeight: FontWeight.w400,
                         color: Colors.white,
                       )),
-              ChartContainer(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  chart: CoinPriceGraph(userCurrency: userCurrency)),
+              ChartContainer(currency: userCurrency),
               Container(
                 margin: const EdgeInsets.only(top: 16.0),
                 child: Column(
