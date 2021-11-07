@@ -135,10 +135,8 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                     if (snapshot.hasData) {
                       return ChartContainer(
                           chart: CoinPriceGraph(
-                        userCurrency: widget.userCurrency,
-                        dataSource: snapshot.data!.prices,
-                        interval: 0.25,
-                      ));
+                              userCurrency: widget.userCurrency,
+                              dataSource: snapshot.data!.prices));
                     } else if (snapshot.hasError) {
                       return Text(Translations.of(context)!.error_fetch_data);
                     }

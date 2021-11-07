@@ -6,14 +6,10 @@ import 'package:coind/domain/market_graph_data.dart';
 
 class CoinPriceGraph extends StatelessWidget {
   const CoinPriceGraph(
-      {Key? key,
-      required this.userCurrency,
-      required this.dataSource,
-      this.interval = 0.5})
+      {Key? key, required this.userCurrency, required this.dataSource})
       : super(key: key);
 
   final String userCurrency;
-  final double interval;
   final List<dynamic> dataSource;
 
   @override
@@ -56,7 +52,7 @@ class CoinPriceGraph extends StatelessWidget {
           ),
           leftTitles: SideTitles(
             showTitles: true,
-            interval: interval,
+            interval: (highestPrice - lowestPrice) / 5,
             reservedSize: 36,
             getTitles: (value) {
               double price = value.toDouble();
