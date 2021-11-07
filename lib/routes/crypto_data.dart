@@ -8,6 +8,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:coind/domain/coin_data.dart';
 import 'package:coind/domain/market_data.dart';
+import 'package:coind/domain/market_graph_data.dart';
 import 'package:coind/domain/store.dart';
 import 'package:coind/routes/market_data.dart';
 import 'package:coind/routes/settings.dart';
@@ -67,7 +68,7 @@ class _CryptoDataRoute extends State<CryptoDataRoute> {
   }
 }
 
-class CryptoDataContainer extends StatelessWidget {
+class CryptoDataContainer extends StatefulWidget {
   const CryptoDataContainer(
       {Key? key, required this.coin, required this.userCurrency})
       : super(key: key);
@@ -75,21 +76,34 @@ class CryptoDataContainer extends StatelessWidget {
   final Coin coin;
   final String userCurrency;
 
+  @override
+  State<CryptoDataContainer> createState() => _CryptoDataContainerState();
+}
+
+class _CryptoDataContainerState extends State<CryptoDataContainer> {
+  late Future<MarketChart> chart;
+
+  @override
+  void initState() {
+    super.initState();
+    chart = Store.fetchMarketChart("smooth-love-potion", "php", 2);
+  }
+
   void _navigateToMarketData(BuildContext context, MarketData marketData) {
     Navigator.push(
         context,
         CupertinoPageRoute(
             builder: (context) => MarketDataRoute(
-                userCurrency: userCurrency, marketData: marketData)));
+                userCurrency: widget.userCurrency, marketData: marketData)));
   }
 
   @override
   Widget build(BuildContext context) {
     DateFormat dateFormat = DateFormat("M d yyyy, h:mm a");
     NumberFormat currencyFormat =
-        NumberFormat.currency(symbol: userCurrency.toUpperCase());
+        NumberFormat.currency(symbol: widget.userCurrency.toUpperCase());
     NumberFormat currencyShortFormat =
-        NumberFormat.compactCurrency(symbol: userCurrency.toUpperCase());
+        NumberFormat.compactCurrency(symbol: widget.userCurrency.toUpperCase());
 
     return SingleChildScrollView(
       physics: const ScrollPhysics(),
@@ -100,19 +114,32 @@ class CryptoDataContainer extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(coin.name.toUpperCase(),
+              Text(widget.coin.name.toUpperCase(),
                   style: Theme.of(context).textTheme.headline6?.copyWith(
                       fontWeight: FontWeight.w600,
                       fontSize: 16.0,
                       color: Colors.white70)),
               Text(
-                  currencyFormat
-                      .format(coin.marketData.currentPrice[userCurrency]),
+                  currencyFormat.format(
+                      widget.coin.marketData.currentPrice[widget.userCurrency]),
                   style: Theme.of(context).textTheme.headline3?.copyWith(
                         fontWeight: FontWeight.w400,
                         color: Colors.white,
                       )),
-              ChartContainer(currency: userCurrency),
+              FutureBuilder<MarketChart>(
+                  future: chart,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return ChartContainer(
+                          chart: CoinPriceGraph(
+                              userCurrency: widget.userCurrency,
+                              dataSource: snapshot.data!.prices));
+                    } else if (snapshot.hasError) {
+                      return Text(Translations.of(context)!.error_fetch_data);
+                    }
+
+                    return Container();
+                  }),
               Container(
                 margin: const EdgeInsets.only(top: 16.0),
                 child: Column(
@@ -121,26 +148,27 @@ class CryptoDataContainer extends StatelessWidget {
                   children: [
                     OneLineDataContainer(
                         header: Translations.of(context)!.market_cap,
-                        data: currencyShortFormat
-                            .format(coin.marketData.marketCap[userCurrency])),
+                        data: currencyShortFormat.format(widget
+                            .coin.marketData.marketCap[widget.userCurrency])),
                     OneLineDataContainer(
                         header: Translations.of(context)!.market_cap_rank,
-                        data: coin.marketData.marketCapRank.toString()),
+                        data: widget.coin.marketData.marketCapRank.toString()),
                     OneLineDataContainer(
                         header: Translations.of(context)!.highest_24h,
-                        data: currencyFormat
-                            .format(coin.marketData.highest24h[userCurrency])),
+                        data: currencyFormat.format(widget
+                            .coin.marketData.highest24h[widget.userCurrency])),
                     OneLineDataContainer(
                         header: Translations.of(context)!.lowest_24h,
-                        data: currencyFormat
-                            .format(coin.marketData.lowest24h[userCurrency])),
+                        data: currencyFormat.format(widget
+                            .coin.marketData.lowest24h[widget.userCurrency])),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         TextButton(
                             onPressed: () {
-                              _navigateToMarketData(context, coin.marketData);
+                              _navigateToMarketData(
+                                  context, widget.coin.marketData);
                             },
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -157,7 +185,7 @@ class CryptoDataContainer extends StatelessWidget {
                             )),
                       ],
                     ),
-                    if (coin.description['en'] != null)
+                    if (widget.coin.description['en'] != null)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -171,7 +199,7 @@ class CryptoDataContainer extends StatelessWidget {
                                         .secondary)),
                           ),
                           ExpandableText(
-                            coin.description['en']!,
+                            widget.coin.description['en']!,
                             maxLines: 4,
                             expandText: Translations.of(context)!.button_more,
                             collapseText: Translations.of(context)!.button_less,
@@ -180,17 +208,17 @@ class CryptoDataContainer extends StatelessWidget {
                       ),
                     InformationWithChip(
                         header: Translations.of(context)!.categories,
-                        data: coin.categories),
+                        data: widget.coin.categories),
                     InformationWithChip(
                         header: Translations.of(context)!.communities,
-                        data: coin.links.getWebsites()),
-                    if (coin.lastUpdated != null)
+                        data: widget.coin.links.getWebsites()),
+                    if (widget.coin.lastUpdated != null)
                       Container(
                         alignment: Alignment.centerRight,
                         margin: const EdgeInsets.only(top: 24),
                         child: Text(
                             Translations.of(context)!.last_updated(
-                                dateFormat.format(coin.lastUpdated!)),
+                                dateFormat.format(widget.coin.lastUpdated!)),
                             style: const TextStyle(color: Colors.white54)),
                       ),
                     Container(
