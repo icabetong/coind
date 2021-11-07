@@ -23,6 +23,7 @@ class MarketDataRoute extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    NumberFormat shortFormat = NumberFormat.compact();
     NumberFormat currencyFormat =
         NumberFormat.currency(symbol: userCurrency.toUpperCase());
     NumberFormat shortCurrencyFormat =
@@ -93,57 +94,49 @@ class MarketDataRoute extends StatelessWidget {
               children: <Widget>[
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_1h,
-                    mainData: marketData
-                        .priceChangePercentage1hInCurrency[userCurrency]
-                        .toString(),
+                    mainData: shortFormat.format(marketData
+                        .priceChangePercentage1hInCurrency[userCurrency]),
                     supportingData: Translations.of(context)!.no_data),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_24h,
-                    mainData: marketData
-                        .priceChangePercentage24hInCurrency[userCurrency]
-                        .toString(),
+                    mainData: shortFormat.format(marketData
+                        .priceChangePercentage24hInCurrency[userCurrency]),
                     supportingData: percentFormat
                         .format(marketData.priceChangePercentage24h)),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_7d,
-                    mainData: marketData
-                        .priceChangePercentage7dInCurrency[userCurrency]
-                        .toString(),
+                    mainData: shortFormat.format(marketData
+                        .priceChangePercentage7dInCurrency[userCurrency]),
                     supportingData: percentFormat
                         .format(marketData.priceChangePercentage7d)),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_14d,
-                    mainData: marketData
-                        .priceChangePercentage14dInCurrency[userCurrency]
-                        .toString(),
+                    mainData: shortFormat.format(marketData
+                        .priceChangePercentage14dInCurrency[userCurrency]),
                     supportingData: percentFormat
                         .format(marketData.priceChangePercentage14d)),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_30d,
-                    mainData: marketData
-                        .priceChangePercentage30dInCurrency[userCurrency]
-                        .toString(),
+                    mainData: shortFormat.format(marketData
+                        .priceChangePercentage30dInCurrency[userCurrency]),
                     supportingData: percentFormat
                         .format(marketData.priceChangePercentage30d)),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_60d,
-                    mainData: marketData
-                        .priceChangePercentage60dInCurrency[userCurrency]
-                        .toString(),
+                    mainData: shortFormat.format(marketData
+                        .priceChangePercentage60dInCurrency[userCurrency]),
                     supportingData: percentFormat
                         .format(marketData.priceChangePercentage60d)),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_200d,
-                    mainData: marketData
-                        .priceChangePercentage200dInCurrency[userCurrency]
-                        .toString(),
+                    mainData: shortFormat.format(marketData
+                        .priceChangePercentage200dInCurrency[userCurrency]),
                     supportingData: percentFormat
                         .format(marketData.priceChangePercentage200d)),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_1y,
-                    mainData: marketData
-                        .priceChangePercentage1yInCurrency[userCurrency]
-                        .toString(),
+                    mainData: shortFormat.format(marketData
+                        .priceChangePercentage1yInCurrency[userCurrency]),
                     supportingData: percentFormat
                         .format(marketData.priceChangePercentage1y)),
               ],
