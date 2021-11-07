@@ -1,18 +1,19 @@
 import "package:flutter/material.dart";
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class InformationWithChip extends StatelessWidget {
   const InformationWithChip(
-      {Key? key, required this.header, required this.data, this.isUrls = false})
+      {Key? key, required this.header, required this.data})
       : super(key: key);
 
   final String header;
   final List<String> data;
-  final bool isUrls;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.only(top: 12),
+        padding: const EdgeInsets.only(top: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -31,14 +32,28 @@ class InformationWithChip extends StatelessWidget {
                 runSpacing: 0,
                 children: data.map((e) {
                   String text = e;
-                  if (text.startsWith("http")) {
+                  bool isUrl = text.startsWith("http");
+                  if (isUrl) {
                     text = e.substring(e.indexOf('//') + 2, e.lastIndexOf('/'));
                   }
 
-                  return Chip(
-                    label: Text(text),
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 8),
-                  );
+                  return !isUrl
+                      ? Chip(
+                          label: Text(text),
+                          labelPadding:
+                              const EdgeInsets.symmetric(horizontal: 8),
+                        )
+                      : ActionChip(
+                          label: Text(text),
+                          onPressed: () async {
+                            await canLaunch(e)
+                                ? launch(e)
+                                : ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                    content: Text(Translations.of(context)!
+                                        .error_generic),
+                                  ));
+                          });
                 }).toList(),
               ),
             )

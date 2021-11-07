@@ -6,10 +6,14 @@ import 'package:coind/domain/market_graph_data.dart';
 
 class CoinPriceGraph extends StatelessWidget {
   const CoinPriceGraph(
-      {Key? key, required this.userCurrency, required this.dataSource})
+      {Key? key,
+      required this.userCurrency,
+      required this.dataSource,
+      this.interval = 0.5})
       : super(key: key);
 
   final String userCurrency;
+  final double interval;
   final List<dynamic> dataSource;
 
   @override
@@ -17,6 +21,7 @@ class CoinPriceGraph extends StatelessWidget {
     DateFormat dateFormat = DateFormat("h:mm aa");
     NumberFormat currencyFormat =
         NumberFormat.currency(symbol: userCurrency.toUpperCase());
+    NumberFormat numberFormat = NumberFormat.compact();
 
     Map<double, double> data = MarketChart.convert(dataSource);
     double lowestPrice = MarketChart.findLowestValue(data);
@@ -51,9 +56,11 @@ class CoinPriceGraph extends StatelessWidget {
           ),
           leftTitles: SideTitles(
             showTitles: true,
-            interval: 0.5,
+            interval: interval,
+            reservedSize: 36,
             getTitles: (value) {
-              return value.toDouble().toStringAsFixed(1);
+              double price = value.toDouble();
+              return numberFormat.format(price);
             },
           ),
         ),
@@ -83,7 +90,7 @@ class ChartContainer extends StatelessWidget {
     return Center(
       child: Container(
         width: MediaQuery.of(context).size.width * 0.95,
-        height: MediaQuery.of(context).size.width * 0.95 * 0.65,
+        height: MediaQuery.of(context).size.width * 0.95 * 0.85,
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
         decoration: BoxDecoration(
           color: Theme.of(context).backgroundColor,

@@ -66,6 +66,11 @@ class Links {
       required this.subredditUrl,
       required this.repositories});
 
+  List<String> getForumsAndChats() {
+    List<String> data = [...forums, ...chatUrls];
+    return data.where((forum) => forum.isNotEmpty).toList();
+  }
+
   List<String> getWebsites() {
     List<String> websites = [];
     for (var element in homepage) {

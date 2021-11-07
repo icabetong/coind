@@ -28,6 +28,7 @@ class MarketDataRoute extends StatelessWidget {
     NumberFormat shortCurrencyFormat =
         NumberFormat.compactCurrency(symbol: userCurrency.toUpperCase());
     NumberFormat percentFormat = NumberFormat.percentPattern();
+    DateFormat dateFormat = DateFormat("M d yyyy");
     return Scaffold(
       appBar:
           AppBar(title: Text(Translations.of(context)!.navigation_market_data)),
@@ -146,7 +147,15 @@ class MarketDataRoute extends StatelessWidget {
                     supportingData: percentFormat
                         .format(marketData.priceChangePercentage1y)),
               ],
-            )
+            ),
+            if (marketData.getLastUpdatedDate() != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Text(
+                    Translations.of(context)!.last_updated(
+                        dateFormat.format(marketData.getLastUpdatedDate()!)),
+                    style: const TextStyle(color: Colors.white70)),
+              )
           ],
         ),
       ),

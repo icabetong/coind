@@ -6,6 +6,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:expandable_text/expandable_text.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:coind/domain/coin_data.dart';
 import 'package:coind/domain/market_data.dart';
 import 'package:coind/domain/market_graph_data.dart';
@@ -81,6 +83,7 @@ class CryptoDataContainer extends StatefulWidget {
 }
 
 class _CryptoDataContainerState extends State<CryptoDataContainer> {
+  int dataSourceIndex = 0;
   late Future<MarketChart> chart;
 
   @override
@@ -132,8 +135,10 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                     if (snapshot.hasData) {
                       return ChartContainer(
                           chart: CoinPriceGraph(
-                              userCurrency: widget.userCurrency,
-                              dataSource: snapshot.data!.prices));
+                        userCurrency: widget.userCurrency,
+                        dataSource: snapshot.data!.prices,
+                        interval: 0.25,
+                      ));
                     } else if (snapshot.hasError) {
                       return Text(Translations.of(context)!.error_fetch_data);
                     }
@@ -210,8 +215,115 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                         header: Translations.of(context)!.categories,
                         data: widget.coin.categories),
                     InformationWithChip(
-                        header: Translations.of(context)!.communities,
+                        header: Translations.of(context)!.websites,
                         data: widget.coin.links.getWebsites()),
+                    InformationWithChip(
+                        header: Translations.of(context)!.forums,
+                        data: widget.coin.links.getForumsAndChats()),
+                    Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(Translations.of(context)!.communities,
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14.0,
+                                  )),
+                              Row(
+                                children: [
+                                  if (widget
+                                          .coin.links.twitterName?.isNotEmpty ==
+                                      true)
+                                    IconButton(
+                                      icon: const FaIcon(
+                                          FontAwesomeIcons.twitter),
+                                      onPressed: () async {
+                                        String url =
+                                            'https://www.twitter.com/${widget.coin.links.twitterName}';
+
+                                        await canLaunch(url)
+                                            ? launch(url)
+                                            : ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                                    content: Text(
+                                                        Translations.of(
+                                                                context)!
+                                                            .error_generic)));
+                                      },
+                                    ),
+                                  if (widget.coin.links.facebookUsername
+                                          ?.isNotEmpty ==
+                                      true)
+                                    IconButton(
+                                      icon: const FaIcon(
+                                          FontAwesomeIcons.facebook),
+                                      onPressed: () async {
+                                        String url =
+                                            'https://www.facebook.com/${widget.coin.links.facebookUsername}';
+
+                                        await canLaunch(url)
+                                            ? launch(url)
+                                            : ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                                    content: Text(
+                                                        Translations.of(
+                                                                context)!
+                                                            .error_generic)));
+                                      },
+                                    ),
+                                  if (widget.coin.links.telegramChannelId
+                                          ?.isNotEmpty ==
+                                      true)
+                                    IconButton(
+                                      icon: const FaIcon(
+                                          FontAwesomeIcons.telegramPlane),
+                                      onPressed: () async {
+                                        String url =
+                                            'https://www.t.me/${widget.coin.links.telegramChannelId}';
+
+                                        await canLaunch(url)
+                                            ? launch(url)
+                                            : ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                                content: Text(
+                                                    Translations.of(context)!
+                                                        .error_generic),
+                                              ));
+                                      },
+                                    ),
+                                  if (widget.coin.links.subredditUrl
+                                          ?.isNotEmpty ==
+                                      true)
+                                    IconButton(
+                                      icon: const FaIcon(
+                                          FontAwesomeIcons.redditAlien),
+                                      onPressed: () async {
+                                        String url =
+                                            widget.coin.links.subredditUrl!;
+
+                                        await canLaunch(url)
+                                            ? launch(url)
+                                            : ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                                    content: Text(
+                                                        Translations.of(
+                                                                context)!
+                                                            .error_generic)));
+                                      },
+                                    ),
+                                  if (widget.coin.links.bitcoinTalkThreadId
+                                          ?.isNotEmpty ==
+                                      true)
+                                    IconButton(
+                                        icon: const FaIcon(
+                                            FontAwesomeIcons.bitcoin),
+                                        onPressed: () async {})
+                                ],
+                              )
+                            ])),
                     if (widget.coin.lastUpdated != null)
                       Container(
                         alignment: Alignment.centerRight,

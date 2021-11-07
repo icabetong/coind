@@ -84,6 +84,10 @@ class MarketData {
       required this.circulatingSupply,
       required this.lastUpdated});
 
+  DateTime? getLastUpdatedDate() {
+    return DateTime.tryParse(lastUpdated);
+  }
+
   factory MarketData.fromJson(Map<String, dynamic> json) {
     return MarketData(
         currentPrice: Map<String, num>.from(json['current_price']),
