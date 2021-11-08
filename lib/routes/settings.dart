@@ -262,12 +262,16 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
 }
 
 class UserPreferences {
+  List<String> coins;
   String currency;
   String language;
   int daysInterval;
 
   UserPreferences(
-      {this.currency = 'usd', this.language = 'en', this.daysInterval = 2});
+      {this.currency = 'usd',
+      this.language = 'en',
+      this.daysInterval = 2,
+      this.coins = const ['smooth-love-potion']});
 
   static UserPreferences getDefault() {
     return UserPreferences();
@@ -284,6 +288,8 @@ class SharedPreferencesHelper {
     userPreferences.language = sharedPreferences.getString("language") ?? "en";
     userPreferences.daysInterval =
         sharedPreferences.getInt("daysInterval") ?? 2;
+    userPreferences.coins =
+        sharedPreferences.getStringList("coins") ?? ['smooth-love-potion'];
     return userPreferences;
   }
 
@@ -291,6 +297,7 @@ class SharedPreferencesHelper {
     sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setString('currency', userPreferences.currency);
     sharedPreferences.setString('language', userPreferences.language);
+    sharedPreferences.setStringList("coins", userPreferences.coins);
     sharedPreferences.setInt('daysInterval', 2);
   }
 }

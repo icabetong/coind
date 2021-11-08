@@ -18,25 +18,24 @@ import 'package:coind/widgets/data_container.dart';
 import 'package:coind/widgets/graphs.dart';
 
 class CryptoDataRoute extends StatefulWidget {
-  const CryptoDataRoute({Key? key}) : super(key: key);
+  const CryptoDataRoute(
+      {Key? key, required this.userPreferences, this.cryptoId})
+      : super(key: key);
+
+  final UserPreferences userPreferences;
+  final String? cryptoId;
 
   @override
   State<CryptoDataRoute> createState() => _CryptoDataRoute();
 }
 
 class _CryptoDataRoute extends State<CryptoDataRoute> {
-  SharedPreferencesHelper helper = SharedPreferencesHelper();
-  UserPreferences preferences = UserPreferences.getDefault();
-
-  String cryptoId = "smooth-love-potion";
   late Future<Coin> crypto;
 
   void _prepare() {
     setState(() {
-      crypto = Store.fetchCoinData(cryptoId);
-      helper.getPreferences().then((p) {
-        preferences = p;
-      });
+      crypto = Store.fetchCoinData(
+          widget.cryptoId ?? widget.userPreferences.coins.first);
     });
   }
 
@@ -49,9 +48,7 @@ class _CryptoDataRoute extends State<CryptoDataRoute> {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      backgroundColor: Color.lerp(
-          Theme.of(context).scaffoldBackgroundColor, Colors.black, 0.2),
-      color: Theme.of(context).colorScheme.secondary,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       onRefresh: () async {
         _prepare();
       },
@@ -61,7 +58,8 @@ class _CryptoDataRoute extends State<CryptoDataRoute> {
             if (snapshot.hasData) {
               return CryptoDataContainer(
                 coin: snapshot.data!,
-                preferences: preferences,
+                coinId: snapshot.data!.symbol,
+                preferences: widget.userPreferences,
               );
             } else if (snapshot.hasError) {
               return const ErrorState();
@@ -74,10 +72,14 @@ class _CryptoDataRoute extends State<CryptoDataRoute> {
 
 class CryptoDataContainer extends StatefulWidget {
   const CryptoDataContainer(
-      {Key? key, required this.coin, required this.preferences})
+      {Key? key,
+      required this.coin,
+      required this.preferences,
+      required this.coinId})
       : super(key: key);
 
   final Coin coin;
+  final String coinId;
   final UserPreferences preferences;
 
   @override
@@ -91,8 +93,8 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
   @override
   void initState() {
     super.initState();
-    chart = Store.fetchMarketChart(
-        "smooth-love-potion", "php", widget.preferences.daysInterval);
+    chart = Store.fetchMarketChart(widget.coinId, widget.preferences.currency,
+        widget.preferences.daysInterval);
   }
 
   void _navigateToMarketData(BuildContext context, MarketData marketData) {

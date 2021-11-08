@@ -21,38 +21,39 @@ class Coind extends StatelessWidget {
     const mainColor = Color(0xff322f44);
     const secondaryColor = Color(0xff29ccb9);
     return base.copyWith(
-        scaffoldBackgroundColor: mainColor,
-        backgroundColor: mainColor,
-        colorScheme: base.colorScheme.copyWith(
-            primary: secondaryColor,
-            background: mainColor,
-            surface: Color.lerp(mainColor, Colors.white, 0.2)),
-        cardColor: Color.lerp(mainColor, Colors.white, 0.2),
-        cardTheme: base.cardTheme.copyWith(
-            color: Color.lerp(mainColor, Colors.black, 0.1),
-            margin: const EdgeInsets.all(16.0),
-            elevation: 0.0),
-        appBarTheme: base.appBarTheme.copyWith(
-            backgroundColor: mainColor,
-            elevation: 0.0,
-            centerTitle: true,
-            titleTextStyle: base.appBarTheme.titleTextStyle?.copyWith(
-              color: Color.lerp(mainColor, Colors.white, 0.7),
-            )),
-        progressIndicatorTheme:
-            base.progressIndicatorTheme.copyWith(color: secondaryColor),
-        popupMenuTheme: base.popupMenuTheme.copyWith(
-            color: Color.lerp(mainColor, Colors.white, 0.1),
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(4)))),
-        dialogTheme: base.dialogTheme.copyWith(
-            backgroundColor: Color.lerp(mainColor, Colors.white, 0.1)),
-        chipTheme: base.chipTheme.copyWith(
-            backgroundColor: Color.lerp(mainColor, Colors.white, 0.1)),
-        textTheme: base.textTheme.copyWith(
-            headline4: const TextStyle(color: Colors.white),
-            headline6: const TextStyle(color: Colors.white),
-            overline: const TextStyle(color: Colors.white)));
+      scaffoldBackgroundColor: mainColor,
+      backgroundColor: mainColor,
+      colorScheme: base.colorScheme.copyWith(
+          primary: secondaryColor,
+          background: mainColor,
+          surface: Color.lerp(mainColor, Colors.white, 0.2)),
+      cardColor: Color.lerp(mainColor, Colors.white, 0.2),
+      cardTheme: base.cardTheme.copyWith(
+          color: Color.lerp(mainColor, Colors.black, 0.1),
+          margin: const EdgeInsets.all(16.0),
+          elevation: 0.0),
+      appBarTheme: base.appBarTheme.copyWith(
+          backgroundColor: mainColor,
+          elevation: 0.0,
+          centerTitle: true,
+          titleTextStyle: base.appBarTheme.titleTextStyle?.copyWith(
+            color: Color.lerp(mainColor, Colors.white, 0.7),
+          )),
+      progressIndicatorTheme:
+          base.progressIndicatorTheme.copyWith(color: secondaryColor),
+      popupMenuTheme: base.popupMenuTheme.copyWith(
+          color: Color.lerp(mainColor, Colors.white, 0.1),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(4)))),
+      dialogTheme: base.dialogTheme
+          .copyWith(backgroundColor: Color.lerp(mainColor, Colors.white, 0.1)),
+      chipTheme: base.chipTheme
+          .copyWith(backgroundColor: Color.lerp(mainColor, Colors.white, 0.1)),
+      textTheme: base.textTheme.copyWith(
+          headline4: const TextStyle(color: Colors.white),
+          headline6: const TextStyle(color: Colors.white),
+          overline: const TextStyle(color: Colors.white)),
+    );
   }
 
   // This widget is the root of your application.
@@ -92,6 +93,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  SharedPreferencesHelper helper = SharedPreferencesHelper();
+  UserPreferences userPreferences = UserPreferences.getDefault();
+
+  @override
+  void initState() {
+    super.initState();
+    helper.getPreferences().then((value) {
+      userPreferences = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -110,7 +122,7 @@ class _HomePageState extends State<HomePage> {
                     MaterialPageRoute(
                         builder: (context) => const CryptoListRoute()));
               },
-              child: const Icon(Icons.search)),
+              child: const Icon(Icons.menu)),
           actions: <Widget>[
             PopupMenuButton(
               itemBuilder: (BuildContext context) {
@@ -145,9 +157,9 @@ class _HomePageState extends State<HomePage> {
             )
           ],
         ),
-        body: const SizedBox(
+        body: SizedBox(
             width: double.infinity,
             height: double.infinity,
-            child: CryptoDataRoute()));
+            child: CryptoDataRoute(userPreferences: userPreferences)));
   }
 }
