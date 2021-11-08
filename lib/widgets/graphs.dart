@@ -6,17 +6,17 @@ import 'package:coind/domain/market_graph_data.dart';
 
 class CoinPriceGraph extends StatelessWidget {
   const CoinPriceGraph(
-      {Key? key, required this.userCurrency, required this.dataSource})
+      {Key? key, required this.currency, required this.dataSource})
       : super(key: key);
 
-  final String userCurrency;
+  final String currency;
   final List<dynamic> dataSource;
 
   @override
   Widget build(BuildContext context) {
     DateFormat dateFormat = DateFormat("h:mm aa");
     NumberFormat currencyFormat =
-        NumberFormat.currency(symbol: userCurrency.toUpperCase());
+        NumberFormat.currency(symbol: currency.toUpperCase());
     NumberFormat numberFormat = NumberFormat.compact();
 
     Map<double, double> data = MarketChart.convert(dataSource);

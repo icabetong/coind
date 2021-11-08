@@ -11,7 +11,8 @@ class Store {
     final response = await http.get(Uri.parse('$endPoint/list'));
 
     if (response.statusCode == 200) {
-      return List<Coin>.from(jsonDecode(response.body));
+      Iterable i = jsonDecode(response.body);
+      return List<Coin>.from(i.map((coin) => Coin.fromJson(coin)));
     } else {
       return Future.error(response.statusCode.toString());
     }

@@ -45,6 +45,8 @@ class Coind extends StatelessWidget {
             color: Color.lerp(mainColor, Colors.white, 0.1),
             shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(4)))),
+        dialogTheme: base.dialogTheme.copyWith(
+            backgroundColor: Color.lerp(mainColor, Colors.white, 0.1)),
         chipTheme: base.chipTheme.copyWith(
             backgroundColor: Color.lerp(mainColor, Colors.white, 0.1)),
         textTheme: base.textTheme.copyWith(
