@@ -142,7 +142,7 @@ class MarketData {
             : {},
         marketCapToTradeValueLockedRatio: json['mcap_to_tvl_ratio'],
         fullyDilutedValuationToTradeVolumeRatio: json['fdv_to_tvl_ratio'],
-        totalSupply: json['total_supply'],
+        totalSupply: json['total_supply'] ?? 0,
         maxSupply: json['max_supply'] ?? 0,
         circulatingSupply: json['circulating_supply'],
         lastUpdated: json['last_updated']);

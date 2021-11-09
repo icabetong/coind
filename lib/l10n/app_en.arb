@@ -1,5 +1,7 @@
 {
     "app_name": "Coind",
+    "navigation_favorites": "Favorites",
+    "navigation_cryptocurrencies": "Cryptocurrencies",
     "navigation_market_data": "Market Data",
     "navigation_settings": "Settings",
     "navigation_about": "About",
@@ -62,12 +64,25 @@
         }
     },
     "data_provider": "Data Provided by CoinGecko",
+    "field_days_interval": "Days Interval",
+    "button_cancel": "Cancel",
+    "button_save": "Save",
     "button_more": "Show More",
     "button_less": "Show Less",
     "button_view_market_data": "View Market Data",
     "settings_group_data": "Data",
     "settings_group_region": "Region",
-    "settings_graph_data_interval": "Graph Data Interval (in days)",
+    "settings_graph_data_interval": "Graph Data Interval",
+    "settings_graph_data_interval_summary": "{days} days",
+    "@settings_graph_data_interval_summary": {
+        "description": "Show the interval of days in the settings screen",
+        "placeholders": {
+            "days": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
     "settings_currency": "Currency",
     "settings_language": "Language",
     "about_framework": "Made using Flutter",

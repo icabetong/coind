@@ -7,8 +7,8 @@ class Coin {
   final DateTime? lastUpdated;
   final Map<String, String> description;
   final List<String> categories;
-  final Links links;
-  final MarketData marketData;
+  final Links? links;
+  final MarketData? marketData;
 
   Coin(
       {required this.id,
@@ -25,12 +25,20 @@ class Coin {
         id: json['id'],
         symbol: json['symbol'],
         name: json['name'],
-        lastUpdated: DateTime.tryParse(json['last_updated']),
-        description: Map<String, String>.from(json['description']),
-        categories: List<String>.from(json['categories']),
-        links: Links.from(json['links']),
-        marketData: MarketData.fromJson(
-            Map<String, dynamic>.from(json['market_data'])));
+        lastUpdated: json['last_updated'] != null
+            ? DateTime.tryParse(json['last_updated'])
+            : null,
+        description: json['description'] != null
+            ? Map<String, String>.from(json['description'])
+            : {},
+        categories: json['categories'] != null
+            ? List<String>.from(json['categories'])
+            : [],
+        links: json['links'] != null ? Links.from(json['links']) : null,
+        marketData: json['market_data'] != null
+            ? MarketData.fromJson(
+                Map<String, dynamic>.from(json['market_data']))
+            : null);
   }
 }
 
@@ -42,16 +50,10 @@ class Links {
   final List<String> announcements;
   final String? twitterName;
   final String? facebookUsername;
-  final String? bitcoinTalkThreadId;
+  final int bitcoinTalkThreadId;
   final String? telegramChannelId;
   final String? subredditUrl;
   final Repositories repositories;
-
-  static const String facebook = "Facebook";
-  static const String reddit = "Reddit";
-  static const String twitter = "Twitter";
-  static const String telegram = "Telegram";
-  static const String bitcoinTalk = "BitcoinTalk";
 
   Links(
       {required this.homepage,
@@ -87,21 +89,6 @@ class Links {
     return websites;
   }
 
-  Map<String, String> getCommunities() {
-    Map<String, String> communities = {};
-    if (facebookUsername != null) {
-      communities[facebookUsername!] = facebook;
-    }
-    if (twitterName != null) communities[twitterName!] = twitter;
-    if (subredditUrl != null) communities[subredditUrl!] = reddit;
-    if (telegramChannelId != null) communities[telegramChannelId!] = telegram;
-    if (bitcoinTalkThreadId != null) {
-      communities[bitcoinTalkThreadId!] = bitcoinTalk;
-    }
-
-    return communities;
-  }
-
   factory Links.from(Map<String, dynamic> json) {
     return Links(
         homepage: List<String>.from(json['homepage']),
@@ -111,7 +98,9 @@ class Links {
         announcements: List<String>.from(json['announcement_url']),
         twitterName: json['twitter_screen_name'],
         facebookUsername: json['facebook_username'],
-        bitcoinTalkThreadId: json['bitcointalk_thread_identifier'],
+        bitcoinTalkThreadId: json['bitcointalk_thread_identifier'] != null
+            ? int.parse(json['bitcointalk_thread_identifier'].toString())
+            : 0,
         telegramChannelId: json['telegram_channel_identifier'],
         subredditUrl: json['subreddit_url'],
         repositories: Repositories.from(json['repos_url']));

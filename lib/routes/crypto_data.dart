@@ -18,7 +18,8 @@ import 'package:coind/widgets/data_container.dart';
 import 'package:coind/widgets/graphs.dart';
 
 class CryptoDataRoute extends StatefulWidget {
-  const CryptoDataRoute({Key? key}) : super(key: key);
+  const CryptoDataRoute({Key? key, this.cryptoId}) : super(key: key);
+  final String? cryptoId;
 
   @override
   State<CryptoDataRoute> createState() => _CryptoDataRoute();
@@ -26,17 +27,15 @@ class CryptoDataRoute extends StatefulWidget {
 
 class _CryptoDataRoute extends State<CryptoDataRoute> {
   SharedPreferencesHelper helper = SharedPreferencesHelper();
-
-  String userCurrency = "usd";
-  String cryptoId = "smooth-love-potion";
+  UserPreferences preferences = UserPreferences.getDefault();
   late Future<Coin> crypto;
 
   void _prepare() {
     setState(() {
-      crypto = Store.fetchCoinData(cryptoId);
-      helper.getCurrency().then((c) {
-        userCurrency = c ?? "usd";
+      helper.getPreferences().then((value) {
+        preferences = value;
       });
+      crypto = Store.fetchCoinData(widget.cryptoId ?? preferences.coins.first);
     });
   }
 
@@ -49,9 +48,7 @@ class _CryptoDataRoute extends State<CryptoDataRoute> {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      backgroundColor: Color.lerp(
-          Theme.of(context).scaffoldBackgroundColor, Colors.black, 0.2),
-      color: Theme.of(context).colorScheme.secondary,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       onRefresh: () async {
         _prepare();
       },
@@ -60,7 +57,10 @@ class _CryptoDataRoute extends State<CryptoDataRoute> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return CryptoDataContainer(
-                  coin: snapshot.data!, userCurrency: userCurrency);
+                coin: snapshot.data!,
+                coinId: snapshot.data!.id,
+                preferences: preferences,
+              );
             } else if (snapshot.hasError) {
               return const ErrorState();
             }
@@ -72,11 +72,15 @@ class _CryptoDataRoute extends State<CryptoDataRoute> {
 
 class CryptoDataContainer extends StatefulWidget {
   const CryptoDataContainer(
-      {Key? key, required this.coin, required this.userCurrency})
+      {Key? key,
+      required this.coin,
+      required this.preferences,
+      required this.coinId})
       : super(key: key);
 
   final Coin coin;
-  final String userCurrency;
+  final String coinId;
+  final UserPreferences preferences;
 
   @override
   State<CryptoDataContainer> createState() => _CryptoDataContainerState();
@@ -89,7 +93,8 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
   @override
   void initState() {
     super.initState();
-    chart = Store.fetchMarketChart("smooth-love-potion", "php", 2);
+    chart = Store.fetchMarketChart(widget.coinId, widget.preferences.currency,
+        widget.preferences.daysInterval);
   }
 
   void _navigateToMarketData(BuildContext context, MarketData marketData) {
@@ -97,16 +102,17 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
         context,
         CupertinoPageRoute(
             builder: (context) => MarketDataRoute(
-                userCurrency: widget.userCurrency, marketData: marketData)));
+                userCurrency: widget.preferences.currency,
+                marketData: marketData)));
   }
 
   @override
   Widget build(BuildContext context) {
     DateFormat dateFormat = DateFormat("M d yyyy, h:mm a");
-    NumberFormat currencyFormat =
-        NumberFormat.currency(symbol: widget.userCurrency.toUpperCase());
-    NumberFormat currencyShortFormat =
-        NumberFormat.compactCurrency(symbol: widget.userCurrency.toUpperCase());
+    NumberFormat currencyFormat = NumberFormat.currency(
+        symbol: widget.preferences.currency.toUpperCase());
+    NumberFormat currencyShortFormat = NumberFormat.compactCurrency(
+        symbol: widget.preferences.currency.toUpperCase());
 
     return SingleChildScrollView(
       physics: const ScrollPhysics(),
@@ -123,8 +129,8 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                       fontSize: 16.0,
                       color: Colors.white70)),
               Text(
-                  currencyFormat.format(
-                      widget.coin.marketData.currentPrice[widget.userCurrency]),
+                  currencyFormat.format(widget.coin.marketData
+                      ?.currentPrice[widget.preferences.currency]),
                   style: Theme.of(context).textTheme.headline3?.copyWith(
                         fontWeight: FontWeight.w400,
                         color: Colors.white,
@@ -135,10 +141,11 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                     if (snapshot.hasData) {
                       return ChartContainer(
                           chart: CoinPriceGraph(
-                              userCurrency: widget.userCurrency,
+                              currency: widget.preferences.currency,
                               dataSource: snapshot.data!.prices));
                     } else if (snapshot.hasError) {
-                      return Text(Translations.of(context)!.error_fetch_data);
+                      return Text(snapshot.error.toString());
+                      //return Text(Translations.of(context)!.error_fetch_data);
                     }
 
                     return Container();
@@ -151,19 +158,21 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                   children: [
                     OneLineDataContainer(
                         header: Translations.of(context)!.market_cap,
-                        data: currencyShortFormat.format(widget
-                            .coin.marketData.marketCap[widget.userCurrency])),
+                        data: currencyShortFormat.format(widget.coin.marketData
+                            ?.marketCap[widget.preferences.currency])),
                     OneLineDataContainer(
                         header: Translations.of(context)!.market_cap_rank,
-                        data: widget.coin.marketData.marketCapRank.toString()),
+                        data:
+                            widget.coin.marketData?.marketCapRank.toString() ??
+                                Translations.of(context)!.no_data),
                     OneLineDataContainer(
                         header: Translations.of(context)!.highest_24h,
-                        data: currencyFormat.format(widget
-                            .coin.marketData.highest24h[widget.userCurrency])),
+                        data: currencyFormat.format(widget.coin.marketData
+                            ?.highest24h[widget.preferences.currency])),
                     OneLineDataContainer(
                         header: Translations.of(context)!.lowest_24h,
-                        data: currencyFormat.format(widget
-                            .coin.marketData.lowest24h[widget.userCurrency])),
+                        data: currencyFormat.format(widget.coin.marketData
+                            ?.lowest24h[widget.preferences.currency])),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       mainAxisSize: MainAxisSize.max,
@@ -171,10 +180,10 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                         TextButton(
                             onPressed: () {
                               _navigateToMarketData(
-                                  context, widget.coin.marketData);
+                                  context, widget.coin.marketData!);
                             },
                             child: Row(
-                              mainAxisSize: MainAxisSize.min,
+                              mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
                                 Text(
@@ -214,10 +223,10 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                         data: widget.coin.categories),
                     InformationWithChip(
                         header: Translations.of(context)!.websites,
-                        data: widget.coin.links.getWebsites()),
+                        data: widget.coin.links?.getWebsites() ?? []),
                     InformationWithChip(
                         header: Translations.of(context)!.forums,
-                        data: widget.coin.links.getForumsAndChats()),
+                        data: widget.coin.links?.getForumsAndChats() ?? []),
                     Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: Column(
@@ -232,15 +241,15 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                                   )),
                               Row(
                                 children: [
-                                  if (widget
-                                          .coin.links.twitterName?.isNotEmpty ==
+                                  if (widget.coin.links?.twitterName
+                                          ?.isNotEmpty ==
                                       true)
                                     IconButton(
                                       icon: const FaIcon(
                                           FontAwesomeIcons.twitter),
                                       onPressed: () async {
                                         String url =
-                                            'https://www.twitter.com/${widget.coin.links.twitterName}';
+                                            'https://www.twitter.com/${widget.coin.links?.twitterName}';
 
                                         await canLaunch(url)
                                             ? launch(url)
@@ -252,7 +261,7 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                                                             .error_generic)));
                                       },
                                     ),
-                                  if (widget.coin.links.facebookUsername
+                                  if (widget.coin.links?.facebookUsername
                                           ?.isNotEmpty ==
                                       true)
                                     IconButton(
@@ -260,7 +269,7 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                                           FontAwesomeIcons.facebook),
                                       onPressed: () async {
                                         String url =
-                                            'https://www.facebook.com/${widget.coin.links.facebookUsername}';
+                                            'https://www.facebook.com/${widget.coin.links?.facebookUsername}';
 
                                         await canLaunch(url)
                                             ? launch(url)
@@ -272,7 +281,7 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                                                             .error_generic)));
                                       },
                                     ),
-                                  if (widget.coin.links.telegramChannelId
+                                  if (widget.coin.links?.telegramChannelId
                                           ?.isNotEmpty ==
                                       true)
                                     IconButton(
@@ -280,7 +289,7 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                                           FontAwesomeIcons.telegramPlane),
                                       onPressed: () async {
                                         String url =
-                                            'https://www.t.me/${widget.coin.links.telegramChannelId}';
+                                            'https://www.t.me/${widget.coin.links?.telegramChannelId}';
 
                                         await canLaunch(url)
                                             ? launch(url)
@@ -292,7 +301,7 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                                               ));
                                       },
                                     ),
-                                  if (widget.coin.links.subredditUrl
+                                  if (widget.coin.links?.subredditUrl
                                           ?.isNotEmpty ==
                                       true)
                                     IconButton(
@@ -300,7 +309,7 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                                           FontAwesomeIcons.redditAlien),
                                       onPressed: () async {
                                         String url =
-                                            widget.coin.links.subredditUrl!;
+                                            '${widget.coin.links?.subredditUrl!}';
 
                                         await canLaunch(url)
                                             ? launch(url)
@@ -312,9 +321,8 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                                                             .error_generic)));
                                       },
                                     ),
-                                  if (widget.coin.links.bitcoinTalkThreadId
-                                          ?.isNotEmpty ==
-                                      true)
+                                  if (widget.coin.links?.bitcoinTalkThreadId !=
+                                      0)
                                     IconButton(
                                         icon: const FaIcon(
                                             FontAwesomeIcons.bitcoin),

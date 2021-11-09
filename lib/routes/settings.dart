@@ -16,6 +16,7 @@ class SettingsRoute extends StatefulWidget {
 class _SettingsRouteState extends State<SettingsRoute> {
   SharedPreferencesHelper helper = SharedPreferencesHelper();
   UserPreferences preferences = UserPreferences.getDefault();
+  TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
@@ -23,36 +24,77 @@ class _SettingsRouteState extends State<SettingsRoute> {
     helper.getPreferences().then((p) {
       setState(() {
         preferences = p;
+        controller = TextEditingController.fromValue(
+            TextEditingValue(text: preferences.daysInterval.toString()));
       });
     });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   void save(UserPreferences preferences) {
     setState(() {
       this.preferences = preferences;
     });
-    helper.setPreferences(preferences);
+  }
+
+  _showDialog(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              title:
+                  Text(Translations.of(context)!.settings_graph_data_interval),
+              content: TextField(
+                autofocus: true,
+                controller: controller,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    hintText: Translations.of(context)!.field_days_interval),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: Text(Translations.of(context)!.button_cancel),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                TextButton(
+                  child: Text(Translations.of(context)!.button_save),
+                  onPressed: () {
+                    preferences.daysInterval = int.parse(controller.text);
+                    save(preferences);
+                    Navigator.of(context).pop();
+                  },
+                )
+              ]);
+        });
   }
 
   void _navigateToCurrencySelection(BuildContext context) async {
     final result = await Navigator.push(
         context,
-        MaterialPageRoute(
+        CupertinoPageRoute(
             builder: (context) =>
                 CurrenciesScreen(currency: preferences.currency)));
 
     preferences.currency = result;
     save(preferences);
+    helper.setCurrency(result);
   }
 
   void _navigateToLangugeSelection(BuildContext context) async {
     final result = await Navigator.push(
         context,
-        MaterialPageRoute(
+        CupertinoPageRoute(
             builder: (context) =>
                 LanguagesScreen(language: preferences.language)));
     preferences.language = result;
     save(preferences);
+    helper.setLanguage(result);
     Translations.delegate.load(Locale(preferences.language));
   }
 
@@ -73,9 +115,15 @@ class _SettingsRouteState extends State<SettingsRoute> {
               title: Translations.of(context)!.settings_group_data,
               tiles: [
                 SettingsTile(
-                    title:
-                        Translations.of(context)!.settings_graph_data_interval,
-                    leading: const Icon(Icons.timeline_outlined))
+                  title: Translations.of(context)!.settings_graph_data_interval,
+                  subtitle: Translations.of(context)!
+                      .settings_graph_data_interval_summary(
+                          preferences.daysInterval),
+                  leading: const Icon(Icons.timeline_outlined),
+                  onPressed: (BuildContext context) {
+                    _showDialog(context);
+                  },
+                )
               ]),
           SettingsSection(
             title: Translations.of(context)!.settings_group_region,
@@ -114,12 +162,12 @@ class CurrenciesScreen extends StatefulWidget {
 }
 
 class _CurrenciesScreenState extends State<CurrenciesScreen> {
-  int currencyIndex = 0;
+  String currentCurrency = "";
 
   @override
   void initState() {
     super.initState();
-    currencyIndex = currencies.indexOf(widget.currency);
+    currentCurrency = widget.currency;
   }
 
   @override
@@ -129,40 +177,34 @@ class _CurrenciesScreenState extends State<CurrenciesScreen> {
           title: Text(Translations.of(context)!.select_currency),
           leading: GestureDetector(
               onTap: () {
-                Navigator.pop(context, currencies[currencyIndex]);
+                Navigator.pop(context, currentCurrency);
               },
               child: const Icon(Icons.arrow_back)),
         ),
-        body: SettingsList(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          sections: [
-            SettingsSection(
-                tiles: currencies
-                    .asMap()
-                    .entries
-                    .map((e) => SettingsTile(
-                          title: currencyNames[e.value] ?? "",
-                          leading: trailingWidget(e.key),
-                          onPressed: (BuildContext context) {
-                            change(context, e.key);
-                          },
-                        ))
-                    .toList())
-          ],
+        body: ListView(
+          children: currencies
+              .map((currency) => ListTile(
+                    title: Text(currencyNames[currency] ?? ""),
+                    leading: trailingWidget(currency),
+                    onTap: () {
+                      change(context, currency);
+                    },
+                  ))
+              .toList(),
         ));
   }
 
-  Widget trailingWidget(int index) {
-    return (index == currencyIndex)
+  Widget trailingWidget(String currency) {
+    return (currentCurrency == currency)
         ? const Icon(Icons.check, color: Colors.white)
         : const Icon(null);
   }
 
-  void change(BuildContext context, int index) {
+  void change(BuildContext context, String currency) {
     setState(() {
-      currencyIndex = index;
+      currentCurrency = currency;
     });
-    Navigator.pop(context, currencies[index]);
+    Navigator.pop(context, currency);
   }
 }
 
@@ -176,12 +218,12 @@ class LanguagesScreen extends StatefulWidget {
 }
 
 class _LanguagesScreenState extends State<LanguagesScreen> {
-  int languageIndex = 0;
+  String currentLanguage = "";
 
   @override
   void initState() {
     super.initState();
-    languageIndex = languages.indexOf(widget.language);
+    currentLanguage = widget.language;
   }
 
   @override
@@ -191,48 +233,46 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
           title: Text(Translations.of(context)!.select_language),
           leading: GestureDetector(
               onTap: () {
-                Navigator.pop(context, languages[languageIndex]);
+                Navigator.pop(context, currentLanguage);
               },
               child: const Icon(Icons.arrow_back)),
         ),
-        body: SettingsList(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          sections: [
-            SettingsSection(
-                tiles: languages
-                    .asMap()
-                    .entries
-                    .map((e) => SettingsTile(
-                          title: languageNames[e.value] ?? "",
-                          leading: trailingWidget(e.key),
-                          onPressed: (BuildContext context) {
-                            change(context, e.key);
-                          },
-                        ))
-                    .toList())
-          ],
-        ));
+        body: ListView(
+            children: languages
+                .map((language) => ListTile(
+                    title: Text(languageNames[language] ?? ""),
+                    leading: trailingWidget(language),
+                    onTap: () {
+                      change(context, language);
+                    }))
+                .toList()));
   }
 
-  Widget trailingWidget(int index) {
-    return (index == languageIndex)
+  Widget trailingWidget(String language) {
+    return (currentLanguage == language)
         ? const Icon(Icons.check, color: Colors.white)
         : const Icon(null);
   }
 
-  void change(BuildContext context, int index) {
+  void change(BuildContext context, String language) {
     setState(() {
-      languageIndex = index;
+      currentLanguage = language;
     });
-    Navigator.pop(context, languages[index]);
+    Navigator.pop(context, language);
   }
 }
 
 class UserPreferences {
+  List<String> coins;
   String currency;
   String language;
+  int daysInterval;
 
-  UserPreferences({this.currency = 'usd', this.language = 'en'});
+  UserPreferences(
+      {this.currency = 'php',
+      this.language = 'en',
+      this.daysInterval = 2,
+      this.coins = const ['smooth-love-potion']});
 
   static UserPreferences getDefault() {
     return UserPreferences();
@@ -247,6 +287,10 @@ class SharedPreferencesHelper {
     UserPreferences userPreferences = UserPreferences();
     userPreferences.currency = sharedPreferences.getString("currency") ?? "usd";
     userPreferences.language = sharedPreferences.getString("language") ?? "en";
+    userPreferences.daysInterval =
+        sharedPreferences.getInt("daysInterval") ?? 2;
+    userPreferences.coins =
+        sharedPreferences.getStringList("coins") ?? ['smooth-love-potion'];
     return userPreferences;
   }
 
@@ -254,16 +298,27 @@ class SharedPreferencesHelper {
     sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setString('currency', userPreferences.currency);
     sharedPreferences.setString('language', userPreferences.language);
+    sharedPreferences.setStringList("coins", userPreferences.coins);
+    sharedPreferences.setInt('daysInterval', 2);
   }
 
-  Future<String?> getCurrency() async {
+  Future<bool> setCurrency(String currency) async {
     sharedPreferences = await SharedPreferences.getInstance();
-    String? t = sharedPreferences.getString("currency");
-    return t;
+    return await sharedPreferences.setString('currency', currency);
   }
 
-  Future<void> setCurrency(String currency) async {
+  Future<bool> setLanguage(String language) async {
     sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.setString("currency", currency);
+    return await sharedPreferences.setString('language', language);
+  }
+
+  Future<bool> setDaysInterval(int daysInterval) async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    return await sharedPreferences.setInt('daysInterval', daysInterval);
+  }
+
+  Future<bool> setCoins(List<String> coins) async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    return await sharedPreferences.setStringList('coins', coins);
   }
 }
