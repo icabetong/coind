@@ -34,7 +34,9 @@ class InformationWithChip extends StatelessWidget {
                   String text = e;
                   bool isUrl = text.startsWith("http");
                   if (isUrl) {
-                    text = e.substring(e.indexOf('//') + 2, e.lastIndexOf('/'));
+                    int lastIndex =
+                        e.endsWith('/') ? e.lastIndexOf('/') : e.length;
+                    text = e.substring(e.indexOf('//') + 2, lastIndex);
                   }
 
                   return !isUrl

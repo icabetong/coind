@@ -7,11 +7,12 @@ import 'package:coind/domain/market_graph_data.dart';
 
 class Store {
   static const endPoint = "https://api.coingecko.com/api/v3/coins";
+  static const pageSize = 100;
 
   static Future<List<Market>> fetchCoins(
       {String currency = 'usd',
       String desc = 'market_cap_desc',
-      int count = 50,
+      int count = pageSize,
       int page = 1}) async {
     final response = await http.get(Uri.parse(
         '$endPoint/markets?vs_currency=$currency&order=$desc&per_page=$count&page=$page&sparkline=false'));

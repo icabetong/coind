@@ -40,7 +40,6 @@ class _SettingsRouteState extends State<SettingsRoute> {
     setState(() {
       this.preferences = preferences;
     });
-    helper.setPreferences(preferences);
   }
 
   _showDialog(BuildContext context) async {
@@ -84,6 +83,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
 
     preferences.currency = result;
     save(preferences);
+    helper.setCurrency(result);
   }
 
   void _navigateToLangugeSelection(BuildContext context) async {
@@ -94,6 +94,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
                 LanguagesScreen(language: preferences.language)));
     preferences.language = result;
     save(preferences);
+    helper.setLanguage(result);
     Translations.delegate.load(Locale(preferences.language));
   }
 
@@ -186,7 +187,7 @@ class _CurrenciesScreenState extends State<CurrenciesScreen> {
                     title: Text(currencyNames[currency] ?? ""),
                     leading: trailingWidget(currency),
                     onTap: () {
-                      change(context, currentCurrency);
+                      change(context, currency);
                     },
                   ))
               .toList(),
@@ -268,7 +269,7 @@ class UserPreferences {
   int daysInterval;
 
   UserPreferences(
-      {this.currency = 'usd',
+      {this.currency = 'php',
       this.language = 'en',
       this.daysInterval = 2,
       this.coins = const ['smooth-love-potion']});
@@ -299,5 +300,25 @@ class SharedPreferencesHelper {
     sharedPreferences.setString('language', userPreferences.language);
     sharedPreferences.setStringList("coins", userPreferences.coins);
     sharedPreferences.setInt('daysInterval', 2);
+  }
+
+  Future<bool> setCurrency(String currency) async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    return await sharedPreferences.setString('currency', currency);
+  }
+
+  Future<bool> setLanguage(String language) async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    return await sharedPreferences.setString('language', language);
+  }
+
+  Future<bool> setDaysInterval(int daysInterval) async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    return await sharedPreferences.setInt('daysInterval', daysInterval);
+  }
+
+  Future<bool> setCoins(List<String> coins) async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    return await sharedPreferences.setStringList('coins', coins);
   }
 }

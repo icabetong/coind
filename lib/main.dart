@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:coind/routes/about.dart';
 import 'package:coind/routes/crypto_list.dart';
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'l10n/l10n.dart';
 import 'routes/crypto_data.dart';
+import 'routes/crypto.dart';
 import 'routes/settings.dart';
 
 void main() {
@@ -21,6 +23,10 @@ class Coind extends StatelessWidget {
     const mainColor = Color(0xff322f44);
     const secondaryColor = Color(0xff29ccb9);
     return base.copyWith(
+      dialogBackgroundColor: Color.lerp(mainColor, Colors.white, 0.1),
+      canvasColor: mainColor,
+      bottomSheetTheme: base.bottomSheetTheme
+          .copyWith(backgroundColor: Color.lerp(mainColor, Colors.white, 0.05)),
       scaffoldBackgroundColor: mainColor,
       backgroundColor: mainColor,
       colorScheme: base.colorScheme.copyWith(
@@ -60,6 +66,7 @@ class Coind extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes: {CryptoRoute.routeName: (context) => const CryptoRoute()},
       supportedLocales: L10n.all,
       localizationsDelegates: const [
         Translations.delegate,
@@ -113,53 +120,64 @@ class _HomePageState extends State<HomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title.toUpperCase()),
-          leading: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const CryptoListRoute()));
-              },
-              child: const Icon(Icons.menu)),
-          actions: <Widget>[
-            PopupMenuButton(
-              itemBuilder: (BuildContext context) {
-                return [
-                  PopupMenuItem<String>(
-                    value: "action:settings",
-                    child: Text(Translations.of(context)!.navigation_settings),
-                  ),
-                  PopupMenuItem<String>(
-                      value: "action:about",
-                      child: Text(Translations.of(context)!.navigation_about))
-                ];
-              },
-              onSelected: (result) {
-                switch (result) {
-                  case "action:settings":
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const SettingsRoute()));
-                    break;
-                  case "action:about":
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const AboutRoute()));
-                    break;
-                  default:
-                    break;
-                }
-              },
-            )
-          ],
-        ),
-        body: SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: CryptoDataRoute(userPreferences: userPreferences)));
+      appBar: AppBar(
+        title: Text(widget.title.toUpperCase()),
+        leading: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const CryptoListRoute(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        return SharedAxisTransition(
+                            child: child,
+                            animation: animation,
+                            secondaryAnimation: secondaryAnimation,
+                            transitionType:
+                                SharedAxisTransitionType.horizontal);
+                      }));
+            },
+            child: const Icon(Icons.menu)),
+        actions: <Widget>[
+          PopupMenuButton(
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem<String>(
+                  value: "action:settings",
+                  child: Text(Translations.of(context)!.navigation_settings),
+                ),
+                PopupMenuItem<String>(
+                    value: "action:about",
+                    child: Text(Translations.of(context)!.navigation_about))
+              ];
+            },
+            onSelected: (result) {
+              switch (result) {
+                case "action:settings":
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SettingsRoute()));
+                  break;
+                case "action:about":
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AboutRoute()));
+                  break;
+                default:
+                  break;
+              }
+            },
+          )
+        ],
+      ),
+      body: const SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: CryptoDataRoute()),
+    );
   }
 }

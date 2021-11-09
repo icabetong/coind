@@ -50,7 +50,7 @@ class Links {
   final List<String> announcements;
   final String? twitterName;
   final String? facebookUsername;
-  final String? bitcoinTalkThreadId;
+  final int bitcoinTalkThreadId;
   final String? telegramChannelId;
   final String? subredditUrl;
   final Repositories repositories;
@@ -98,7 +98,9 @@ class Links {
         announcements: List<String>.from(json['announcement_url']),
         twitterName: json['twitter_screen_name'],
         facebookUsername: json['facebook_username'],
-        bitcoinTalkThreadId: json['bitcointalk_thread_identifier'],
+        bitcoinTalkThreadId: json['bitcointalk_thread_identifier'] != null
+            ? int.parse(json['bitcointalk_thread_identifier'].toString())
+            : 0,
         telegramChannelId: json['telegram_channel_identifier'],
         subredditUrl: json['subreddit_url'],
         repositories: Repositories.from(json['repos_url']));

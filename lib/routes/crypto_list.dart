@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:coind/domain/market.dart';
 import 'package:coind/domain/store.dart';
 import 'package:coind/routes/settings.dart';
+import 'package:coind/routes/crypto.dart';
 
 class CryptoListRoute extends StatefulWidget {
   const CryptoListRoute({Key? key}) : super(key: key);
@@ -17,6 +18,7 @@ class CryptoListRoute extends StatefulWidget {
 class _CryptoListRouteState extends State<CryptoListRoute> {
   SharedPreferencesHelper helper = SharedPreferencesHelper();
   UserPreferences preferences = UserPreferences.getDefault();
+  List<String> currencies = [];
   final PagingController<int, Market> controller =
       PagingController(firstPageKey: 1);
 
@@ -26,8 +28,46 @@ class _CryptoListRouteState extends State<CryptoListRoute> {
     setState(() {
       helper.getPreferences().then((value) {
         preferences = value;
+        currencies = preferences.coins;
       });
     });
+  }
+
+  void _addToFavorites(String currency) {
+    if (!currencies.contains(currency)) {
+      currencies.add(currency);
+      setState(() {
+        currencies = currencies;
+      });
+
+      helper.setCoins(currencies);
+    }
+  }
+
+  void _removeFromFavorites(String currency) {
+    if (currencies.contains(currency)) {
+      currencies.remove(currency);
+      setState(() {
+        currencies = currencies;
+      });
+
+      helper.setCoins(currencies);
+    }
+  }
+
+  Widget trailingWidget(String currency) {
+    return currencies.contains(currency)
+        ? IconButton(
+            icon: const Icon(Icons.star_rounded, color: Colors.amber),
+            onPressed: () {
+              _removeFromFavorites(currency);
+            },
+          )
+        : IconButton(
+            icon: const Icon(Icons.star_outline_rounded),
+            onPressed: () {
+              _addToFavorites(currency);
+            });
   }
 
   Future<void> fetch(int page) async {
@@ -35,7 +75,7 @@ class _CryptoListRouteState extends State<CryptoListRoute> {
       final newItems =
           await Store.fetchCoins(currency: preferences.currency, page: page);
 
-      final isLastPage = newItems.length < 50;
+      final isLastPage = newItems.length < Store.pageSize;
       if (isLastPage) {
         controller.appendLastPage(newItems);
       } else {
@@ -73,16 +113,18 @@ class _CryptoListRouteState extends State<CryptoListRoute> {
                 pagingController: controller,
                 builderDelegate: PagedChildBuilderDelegate<Market>(
                     itemBuilder: (context, item, index) => ListTile(
-                          trailing: Text(item.marketCapRank.toString()),
-                          leading: FadeInImage.memoryNetwork(
-                              width: 36,
-                              height: 36,
-                              placeholder: kTransparentImage,
-                              image: item.image),
-                          title: Text(item.name),
-                          subtitle:
-                              Text(numberFormat.format(item.currentPrice)),
-                        )),
+                        trailing: trailingWidget(item.id),
+                        leading: FadeInImage.memoryNetwork(
+                            width: 36,
+                            height: 36,
+                            placeholder: kTransparentImage,
+                            image: item.image),
+                        title: Text(item.name),
+                        subtitle: Text(numberFormat.format(item.currentPrice)),
+                        onTap: () {
+                          Navigator.pushNamed(context, CryptoRoute.routeName,
+                              arguments: CryptoRouteArguments(id: item.id));
+                        })),
                 separatorBuilder: (context, index) => const Divider())));
   }
 }

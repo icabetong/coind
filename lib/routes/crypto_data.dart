@@ -18,11 +18,7 @@ import 'package:coind/widgets/data_container.dart';
 import 'package:coind/widgets/graphs.dart';
 
 class CryptoDataRoute extends StatefulWidget {
-  const CryptoDataRoute(
-      {Key? key, required this.userPreferences, this.cryptoId})
-      : super(key: key);
-
-  final UserPreferences userPreferences;
+  const CryptoDataRoute({Key? key, this.cryptoId}) : super(key: key);
   final String? cryptoId;
 
   @override
@@ -30,12 +26,16 @@ class CryptoDataRoute extends StatefulWidget {
 }
 
 class _CryptoDataRoute extends State<CryptoDataRoute> {
+  SharedPreferencesHelper helper = SharedPreferencesHelper();
+  UserPreferences preferences = UserPreferences.getDefault();
   late Future<Coin> crypto;
 
   void _prepare() {
     setState(() {
-      crypto = Store.fetchCoinData(
-          widget.cryptoId ?? widget.userPreferences.coins.first);
+      helper.getPreferences().then((value) {
+        preferences = value;
+      });
+      crypto = Store.fetchCoinData(widget.cryptoId ?? preferences.coins.first);
     });
   }
 
@@ -58,8 +58,8 @@ class _CryptoDataRoute extends State<CryptoDataRoute> {
             if (snapshot.hasData) {
               return CryptoDataContainer(
                 coin: snapshot.data!,
-                coinId: snapshot.data!.symbol,
-                preferences: widget.userPreferences,
+                coinId: snapshot.data!.id,
+                preferences: preferences,
               );
             } else if (snapshot.hasError) {
               return const ErrorState();
@@ -144,7 +144,8 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                               currency: widget.preferences.currency,
                               dataSource: snapshot.data!.prices));
                     } else if (snapshot.hasError) {
-                      return Text(Translations.of(context)!.error_fetch_data);
+                      return Text(snapshot.error.toString());
+                      //return Text(Translations.of(context)!.error_fetch_data);
                     }
 
                     return Container();
@@ -320,9 +321,8 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
                                                             .error_generic)));
                                       },
                                     ),
-                                  if (widget.coin.links?.bitcoinTalkThreadId
-                                          ?.isNotEmpty ==
-                                      true)
+                                  if (widget.coin.links?.bitcoinTalkThreadId !=
+                                      0)
                                     IconButton(
                                         icon: const FaIcon(
                                             FontAwesomeIcons.bitcoin),
