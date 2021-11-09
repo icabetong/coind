@@ -43,7 +43,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
   }
 
   _showDialog(BuildContext context) async {
-    return showDialog(
+    return await showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
@@ -65,9 +65,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
                 TextButton(
                   child: Text(Translations.of(context)!.button_save),
                   onPressed: () {
-                    preferences.daysInterval = int.parse(controller.text);
-                    save(preferences);
-                    Navigator.of(context).pop();
+                    Navigator.pop(context, controller.text);
                   },
                 )
               ]);
@@ -120,8 +118,12 @@ class _SettingsRouteState extends State<SettingsRoute> {
                       .settings_graph_data_interval_summary(
                           preferences.daysInterval),
                   leading: const Icon(Icons.timeline_outlined),
-                  onPressed: (BuildContext context) {
-                    _showDialog(context);
+                  onPressed: (BuildContext context) async {
+                    String? result = await _showDialog(context);
+                    if (result != null) {
+                      int days = int.parse(result);
+                      helper.setDaysInterval(days);
+                    }
                   },
                 )
               ]),
