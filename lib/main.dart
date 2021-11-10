@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:animations/animations.dart';
 import 'package:coind/repository/store.dart';
 import 'package:coind/routes/about.dart';
 import 'package:coind/routes/crypto_list.dart';

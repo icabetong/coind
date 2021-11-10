@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:intl/intl.dart';
+import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
@@ -47,16 +47,24 @@ class _CryptoDataWidgetState extends State<CryptoDataWidget> {
   void _navigateToMarketData(BuildContext context, MarketData marketData) {
     Navigator.push(
         context,
-        CupertinoPageRoute(
-            builder: (context) => MarketDataRoute(
-                userCurrency: widget.preferences.currency,
-                marketData: marketData)));
+        PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                MarketDataRoute(
+                    userCurrency: widget.preferences.currency,
+                    marketData: marketData),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return SharedAxisTransition(
+                  child: child,
+                  animation: animation,
+                  secondaryAnimation: secondaryAnimation,
+                  transitionType: SharedAxisTransitionType.horizontal);
+            }));
   }
 
   @override
   Widget build(BuildContext context) {
     String currency = widget.preferences.currency;
-    DateFormat dateFormat = DateFormat("M d yyyy, h:mm a");
 
     return SingleChildScrollView(
       physics: const ScrollPhysics(),
