@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_no_data">No Data</string>
+    <string name="widget_n_a">N/A</string>
+    <string name="widget_last_updated">Last Updated: %1$s</string>
+    <string name="widget_last_updated_no_date">Last Updated: N/A</string>
+</resources>

@@ -4,8 +4,8 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:coind/domain/market.dart';
-import 'package:coind/domain/store.dart';
-import 'package:coind/routes/settings.dart';
+import 'package:coind/repository/store.dart';
+import 'package:coind/repository/preferences.dart';
 import 'package:coind/routes/crypto.dart';
 
 class CryptoListRoute extends StatefulWidget {

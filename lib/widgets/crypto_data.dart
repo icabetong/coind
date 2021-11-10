@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:coind/widgets/states.dart';
+import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
@@ -11,67 +11,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:coind/domain/coin_data.dart';
 import 'package:coind/domain/market_data.dart';
 import 'package:coind/domain/market_graph_data.dart';
-import 'package:coind/domain/store.dart';
+import 'package:coind/repository/store.dart';
+import 'package:coind/repository/preferences.dart';
 import 'package:coind/routes/market_data.dart';
-import 'package:coind/routes/settings.dart';
 import 'package:coind/widgets/data_container.dart';
 import 'package:coind/widgets/graphs.dart';
 
-class CryptoDataRoute extends StatefulWidget {
-  const CryptoDataRoute({Key? key, this.cryptoId}) : super(key: key);
-  final String? cryptoId;
-
-  @override
-  State<CryptoDataRoute> createState() => _CryptoDataRoute();
-}
-
-class _CryptoDataRoute extends State<CryptoDataRoute> {
-  SharedPreferencesHelper helper = SharedPreferencesHelper();
-  UserPreferences preferences = UserPreferences.getDefault();
-  late Future<Coin> crypto;
-
-  void _prepare() {
-    setState(() {
-      helper.getPreferences().then((value) {
-        preferences = value;
-      });
-      crypto = Store.fetchCoinData(widget.cryptoId ?? preferences.coins.first);
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _prepare();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return RefreshIndicator(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      onRefresh: () async {
-        _prepare();
-      },
-      child: FutureBuilder<Coin>(
-          future: crypto,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return CryptoDataContainer(
-                coin: snapshot.data!,
-                coinId: snapshot.data!.id,
-                preferences: preferences,
-              );
-            } else if (snapshot.hasError) {
-              return const ErrorState();
-            }
-            return const Center(child: CircularProgressIndicator());
-          }),
-    );
-  }
-}
-
-class CryptoDataContainer extends StatefulWidget {
-  const CryptoDataContainer(
+class CryptoDataWidget extends StatefulWidget {
+  const CryptoDataWidget(
       {Key? key,
       required this.coin,
       required this.preferences,
@@ -83,10 +30,10 @@ class CryptoDataContainer extends StatefulWidget {
   final UserPreferences preferences;
 
   @override
-  State<CryptoDataContainer> createState() => _CryptoDataContainerState();
+  State<CryptoDataWidget> createState() => _CryptoDataWidgetState();
 }
 
-class _CryptoDataContainerState extends State<CryptoDataContainer> {
+class _CryptoDataWidgetState extends State<CryptoDataWidget> {
   int dataSourceIndex = 0;
   late Future<MarketChart> chart;
 
@@ -110,7 +57,10 @@ class _CryptoDataContainerState extends State<CryptoDataContainer> {
   Widget build(BuildContext context) {
     DateFormat dateFormat = DateFormat("M d yyyy, h:mm a");
     NumberFormat currencyFormat = NumberFormat.currency(
-        symbol: widget.preferences.currency.toUpperCase());
+        symbol: NumberFormat.currency(
+                locale: Platform.localeName,
+                name: widget.preferences.currency.toUpperCase())
+            .currencySymbol);
     NumberFormat currencyShortFormat = NumberFormat.compactCurrency(
         symbol: widget.preferences.currency.toUpperCase());
 

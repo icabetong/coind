@@ -1,23 +1,36 @@
+import 'dart:async';
+import 'package:intl/intl.dart';
 import 'package:animations/animations.dart';
+import 'package:coind/repository/store.dart';
 import 'package:coind/routes/about.dart';
 import 'package:coind/routes/crypto_list.dart';
+import 'package:coind/widgets/states.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
+import 'package:home_widget/home_widget.dart';
+import 'package:coind/domain/coin_data.dart';
+import 'package:coind/repository/preferences.dart';
 import 'l10n/l10n.dart';
-import 'routes/crypto_data.dart';
+import 'widgets/crypto_data.dart';
 import 'routes/crypto.dart';
 import 'routes/settings.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const Coind());
 }
 
-class Coind extends StatelessWidget {
+class Coind extends StatefulWidget {
   const Coind({Key? key}) : super(key: key);
 
+  @override
+  State<Coind> createState() => _CoindState();
+}
+
+class _CoindState extends State<Coind> {
   ThemeData construct() {
     final base = ThemeData(brightness: Brightness.dark, fontFamily: 'Rubik');
     const mainColor = Color(0xff322f44);
@@ -62,7 +75,6 @@ class Coind extends StatelessWidget {
     );
   }
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -101,14 +113,40 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   SharedPreferencesHelper helper = SharedPreferencesHelper();
-  UserPreferences userPreferences = UserPreferences.getDefault();
+  UserPreferences preferences = UserPreferences.getDefault();
+
+  late Future<Coin> coin;
+
+  void _prepare() {
+    coin = Store.fetchCoinData(preferences.coins.first);
+  }
 
   @override
   void initState() {
     super.initState();
+    _prepare();
     helper.getPreferences().then((value) {
-      userPreferences = value;
+      preferences = value;
     });
+  }
+
+  Future<void> _sendData(Coin coin) async {
+    try {
+      NumberFormat currencyFormat = NumberFormat.compactCurrency(
+          symbol: preferences.currency.toUpperCase());
+
+      Future.wait([
+        HomeWidget.saveWidgetData<String>('symbol', coin.name),
+        HomeWidget.saveWidgetData<String>(
+            'value',
+            currencyFormat
+                .format(coin.marketData?.currentPrice[preferences.currency])),
+        HomeWidget.saveWidgetData<String>(
+            'lastUpdated', coin.lastUpdated.toString())
+      ]);
+    } on PlatformException catch (exception) {
+      debugPrint('Error Sending Data. $exception');
+    }
   }
 
   @override
@@ -141,6 +179,12 @@ class _HomePageState extends State<HomePage> {
             },
             child: const Icon(Icons.menu)),
         actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              _prepare();
+            },
+          ),
           PopupMenuButton(
             itemBuilder: (BuildContext context) {
               return [
@@ -174,10 +218,25 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: const SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: CryptoDataRoute()),
+      body: RefreshIndicator(
+          onRefresh: () async {
+            _prepare();
+          },
+          child: FutureBuilder<Coin>(
+              future: coin,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  _sendData(snapshot.data!);
+                  return CryptoDataWidget(
+                    coin: snapshot.data!,
+                    coinId: snapshot.data!.id,
+                    preferences: preferences,
+                  );
+                } else if (snapshot.hasError) {
+                  return const ErrorState();
+                }
+                return const Center(child: CircularProgressIndicator());
+              })),
     );
   }
 }
