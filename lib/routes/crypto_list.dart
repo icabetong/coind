@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:intl/intl.dart';
 import 'package:coind/domain/market.dart';
+import 'package:coind/l10n/formatters.dart';
 import 'package:coind/repository/store.dart';
 import 'package:coind/repository/preferences.dart';
 import 'package:coind/routes/crypto.dart';
@@ -21,8 +21,6 @@ class _CryptoListRouteState extends State<CryptoListRoute> {
   List<String> currencies = [];
   final PagingController<int, Market> controller =
       PagingController(firstPageKey: 1);
-
-  late Future<List<Market>> coins;
 
   void _prepare() {
     setState(() {
@@ -98,9 +96,6 @@ class _CryptoListRouteState extends State<CryptoListRoute> {
 
   @override
   Widget build(BuildContext context) {
-    NumberFormat numberFormat =
-        NumberFormat.currency(symbol: preferences.currency.toUpperCase());
-
     return Scaffold(
         appBar: AppBar(
             title: Text(Translations.of(context)!.navigation_cryptocurrencies)),
@@ -120,7 +115,7 @@ class _CryptoListRouteState extends State<CryptoListRoute> {
                             placeholder: kTransparentImage,
                             image: item.image),
                         title: Text(item.name),
-                        subtitle: Text(numberFormat.format(item.currentPrice)),
+                        subtitle: Text(formatCurrency(item.currentPrice)),
                         onTap: () {
                           Navigator.pushNamed(context, CryptoRoute.routeName,
                               arguments: CryptoRouteArguments(id: item.id));

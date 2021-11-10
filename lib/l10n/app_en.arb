@@ -74,6 +74,7 @@
     "settings_group_region": "Region",
     "settings_graph_data_interval": "Graph Data Interval",
     "settings_graph_data_interval_summary": "{days} days",
+    "settings_default_crypto": "Default Cryptocurrency",
     "@settings_graph_data_interval_summary": {
         "description": "Show the interval of days in the settings screen",
         "placeholders": {
@@ -85,12 +86,15 @@
     },
     "settings_currency": "Currency",
     "settings_language": "Language",
+    "about_version": "Version",
+    "about_build_number": "Build Number",
     "about_framework": "Made using Flutter",
     "about_data_provider": "Data Provider",
     "about_data_provider_summary": "CoinGecko",
     "error_generic": "Something Failed",
     "error_generic_summary": "There was an unexpected error occured when fetching the necessary data.",
     "error_fetch_data": "Failed to Fetch Data",
+    "select_crypto": "Select Cryptocurrency",
     "select_currency": "Select Currency",
     "select_language": "Select Language"
 }

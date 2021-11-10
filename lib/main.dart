@@ -29,8 +29,9 @@ void widgetBackgroundCallback(Uri? uri) async {
   if (uri?.host == 'triggerRefresh') {
     SharedPreferencesHelper helper = SharedPreferencesHelper();
     String currency = await helper.getCurrency();
-    String coinId = await helper.getDefaultCoin();
-    Coin coin = await Store.fetchCoinData(coinId);
+    String coinId = await helper.getDefaultCrypto();
+    Coin coin =
+        await Store.fetchCoinData(coinId.substring(0, coinId.indexOf(':')));
 
     await HomeWidget.saveWidgetData<String>('symbol', coin.name);
     await HomeWidget.saveWidgetData<String>(
@@ -141,7 +142,9 @@ class _HomePageState extends State<HomePage> {
   late Future<Coin> coin;
 
   void _prepare() {
-    coin = Store.fetchCoinData(preferences.coins.first);
+    String defaultCrypto = preferences.defaultCrypto;
+    coin = Store.fetchCoinData(
+        defaultCrypto.substring(0, defaultCrypto.indexOf(':')));
   }
 
   @override
@@ -189,12 +192,12 @@ class _HomePageState extends State<HomePage> {
                           const CryptoListRoute(),
                       transitionsBuilder:
                           (context, animation, secondaryAnimation, child) {
-                        return SharedAxisTransition(
-                            child: child,
-                            animation: animation,
-                            secondaryAnimation: secondaryAnimation,
-                            transitionType:
-                                SharedAxisTransitionType.horizontal);
+                        return SlideTransition(
+                          child: child,
+                          position: Tween<Offset>(
+                                  begin: const Offset(-1, 0), end: Offset.zero)
+                              .animate(animation),
+                        );
                       }));
             },
             child: const Icon(Icons.menu)),

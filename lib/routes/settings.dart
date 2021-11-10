@@ -1,10 +1,16 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:transparent_image/transparent_image.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:coind/domain/market.dart';
 import 'package:coind/l10n/locales.dart';
+import 'package:coind/l10n/formatters.dart';
 import 'package:coind/repository/preferences.dart';
+import 'package:coind/repository/store.dart';
 
 class SettingsRoute extends StatefulWidget {
   const SettingsRoute({Key? key}) : super(key: key);
@@ -72,28 +78,73 @@ class _SettingsRouteState extends State<SettingsRoute> {
         });
   }
 
+  void _navigateToCryptoSelection(BuildContext context) async {
+    final result = await Navigator.push(
+        context,
+        PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                CryptoCurrencyScreen(
+                    crypto: preferences.defaultCrypto,
+                    currency: preferences.currency),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return SharedAxisTransition(
+                  child: child,
+                  animation: animation,
+                  secondaryAnimation: secondaryAnimation,
+                  transitionType: SharedAxisTransitionType.horizontal);
+            }));
+
+    if (result != null) {
+      preferences.defaultCrypto = result;
+      save(preferences);
+      helper.setDefaultCrypto(result);
+    }
+  }
+
   void _navigateToCurrencySelection(BuildContext context) async {
     final result = await Navigator.push(
         context,
-        CupertinoPageRoute(
-            builder: (context) =>
-                CurrenciesScreen(currency: preferences.currency)));
+        PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                CurrenciesScreen(currency: preferences.currency),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return SharedAxisTransition(
+                  child: child,
+                  animation: animation,
+                  secondaryAnimation: secondaryAnimation,
+                  transitionType: SharedAxisTransitionType.horizontal);
+            }));
 
-    preferences.currency = result;
-    save(preferences);
-    helper.setCurrency(result);
+    if (result != null) {
+      preferences.currency = result;
+      save(preferences);
+      helper.setCurrency(result);
+    }
   }
 
   void _navigateToLangugeSelection(BuildContext context) async {
     final result = await Navigator.push(
         context,
-        CupertinoPageRoute(
-            builder: (context) =>
-                LanguagesScreen(language: preferences.language)));
-    preferences.language = result;
-    save(preferences);
-    helper.setLanguage(result);
-    Translations.delegate.load(Locale(preferences.language));
+        PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                LanguagesScreen(language: preferences.language),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return SharedAxisTransition(
+                  child: child,
+                  animation: animation,
+                  secondaryAnimation: secondaryAnimation,
+                  transitionType: SharedAxisTransitionType.horizontal);
+            }));
+
+    if (result != null) {
+      preferences.language = result;
+      save(preferences);
+      helper.setLanguage(result);
+      Translations.delegate.load(Locale(preferences.language));
+    }
   }
 
   @override
@@ -125,7 +176,17 @@ class _SettingsRouteState extends State<SettingsRoute> {
                       helper.setDaysInterval(days);
                     }
                   },
-                )
+                ),
+                SettingsTile(
+                  title: Translations.of(context)!.settings_default_crypto,
+                  subtitle: preferences.defaultCrypto.substring(
+                      preferences.defaultCrypto.indexOf(':') + 1,
+                      preferences.defaultCrypto.length),
+                  leading: const Icon(Icons.monetization_on_outlined),
+                  onPressed: (BuildContext context) async {
+                    _navigateToCryptoSelection(context);
+                  },
+                ),
               ]),
           SettingsSection(
             title: Translations.of(context)!.settings_group_region,
@@ -151,6 +212,86 @@ class _SettingsRouteState extends State<SettingsRoute> {
         ],
       ),
     );
+  }
+}
+
+class CryptoCurrencyScreen extends StatefulWidget {
+  final String crypto;
+  final String currency;
+
+  const CryptoCurrencyScreen(
+      {Key? key, required this.crypto, required this.currency})
+      : super(key: key);
+
+  @override
+  _CryptoCurrencyScreenState createState() => _CryptoCurrencyScreenState();
+}
+
+class _CryptoCurrencyScreenState extends State<CryptoCurrencyScreen> {
+  final PagingController<int, Market> controller =
+      PagingController(firstPageKey: 1);
+  late String crypto;
+
+  Future<void> fetch(int page) async {
+    try {
+      final newItems =
+          await Store.fetchCoins(currency: widget.currency, page: page);
+
+      final isLastPage = newItems.length < Store.pageSize;
+      if (isLastPage) {
+        controller.appendLastPage(newItems);
+      } else {
+        final int nextPage = page + 1;
+        controller.appendPage(newItems, nextPage);
+      }
+    } catch (error) {
+      controller.error = error;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    crypto = widget.crypto;
+    controller.addPageRequestListener((pageKey) {
+      fetch(pageKey);
+    });
+  }
+
+  Widget _trailingWidget(String id) {
+    return id == widget.crypto.substring(0, widget.crypto.indexOf(":"))
+        ? const Icon(Icons.check)
+        : const Icon(null);
+  }
+
+  void _change(BuildContext context, Market market) {
+    String newCrypto = "${market.id}:${market.name}";
+    setState(() {
+      crypto = newCrypto;
+    });
+    Navigator.pop(context, newCrypto);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(title: Text(Translations.of(context)!.select_crypto)),
+        body: PagedListView<int, Market>.separated(
+            pagingController: controller,
+            builderDelegate: PagedChildBuilderDelegate<Market>(
+                itemBuilder: (context, item, index) => ListTile(
+                    trailing: _trailingWidget(item.id),
+                    leading: FadeInImage.memoryNetwork(
+                        width: 36,
+                        height: 36,
+                        placeholder: kTransparentImage,
+                        image: item.image),
+                    title: Text(item.name),
+                    subtitle: Text(formatCurrency(item.currentPrice)),
+                    onTap: () {
+                      _change(context, item);
+                    })),
+            separatorBuilder: (context, index) => const Divider()));
   }
 }
 
@@ -187,22 +328,22 @@ class _CurrenciesScreenState extends State<CurrenciesScreen> {
           children: currencies
               .map((currency) => ListTile(
                     title: Text(currencyNames[currency] ?? ""),
-                    leading: trailingWidget(currency),
+                    leading: _trailingWidget(currency),
                     onTap: () {
-                      change(context, currency);
+                      _change(context, currency);
                     },
                   ))
               .toList(),
         ));
   }
 
-  Widget trailingWidget(String currency) {
+  Widget _trailingWidget(String currency) {
     return (currentCurrency == currency)
         ? const Icon(Icons.check, color: Colors.white)
         : const Icon(null);
   }
 
-  void change(BuildContext context, String currency) {
+  void _change(BuildContext context, String currency) {
     setState(() {
       currentCurrency = currency;
     });
@@ -243,20 +384,20 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
             children: languages
                 .map((language) => ListTile(
                     title: Text(languageNames[language] ?? ""),
-                    leading: trailingWidget(language),
+                    leading: _trailingWidget(language),
                     onTap: () {
-                      change(context, language);
+                      _change(context, language);
                     }))
                 .toList()));
   }
 
-  Widget trailingWidget(String language) {
+  Widget _trailingWidget(String language) {
     return (currentLanguage == language)
         ? const Icon(Icons.check, color: Colors.white)
         : const Icon(null);
   }
 
-  void change(BuildContext context, String language) {
+  void _change(BuildContext context, String language) {
     setState(() {
       currentLanguage = language;
     });

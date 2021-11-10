@@ -2,15 +2,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class UserPreferences {
   List<String> coins;
+  String defaultCrypto;
   String currency;
   String language;
   int daysInterval;
 
+  static const _initDefaultCrypto = 'smooth-love-potion:Smooth Love Potion';
+  static const _initCurrency = 'php';
+  static const _initLanguage = 'en';
+  static const _initDaysInterval = 2;
+
   UserPreferences(
-      {this.currency = 'php',
-      this.language = 'en',
-      this.daysInterval = 2,
-      this.coins = const ['smooth-love-potion']});
+      {this.defaultCrypto = _initDefaultCrypto,
+      this.currency = _initCurrency,
+      this.language = _initLanguage,
+      this.daysInterval = _initDaysInterval,
+      this.coins = const [_initDefaultCrypto]});
 
   static UserPreferences getDefault() {
     return UserPreferences();
@@ -23,31 +30,29 @@ class SharedPreferencesHelper {
   Future<UserPreferences> getPreferences() async {
     sharedPreferences = await SharedPreferences.getInstance();
     UserPreferences userPreferences = UserPreferences();
-    userPreferences.currency = sharedPreferences.getString("currency") ?? "usd";
-    userPreferences.language = sharedPreferences.getString("language") ?? "en";
-    userPreferences.daysInterval =
-        sharedPreferences.getInt("daysInterval") ?? 2;
-    userPreferences.coins =
-        sharedPreferences.getStringList("coins") ?? ['smooth-love-potion'];
+    userPreferences.defaultCrypto =
+        sharedPreferences.getString("widgetCrypto") ??
+            UserPreferences._initDefaultCrypto;
+    userPreferences.currency = sharedPreferences.getString("currency") ??
+        UserPreferences._initCurrency;
+    userPreferences.language = sharedPreferences.getString("language") ??
+        UserPreferences._initLanguage;
+    userPreferences.daysInterval = sharedPreferences.getInt("daysInterval") ??
+        UserPreferences._initDaysInterval;
+    userPreferences.coins = sharedPreferences.getStringList("coins") ??
+        [UserPreferences._initDefaultCrypto];
     return userPreferences;
   }
 
-  void setPreferences(UserPreferences userPreferences) async {
+  Future<bool> setDefaultCrypto(String defaultCrypto) async {
     sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.setString('currency', userPreferences.currency);
-    sharedPreferences.setString('language', userPreferences.language);
-    sharedPreferences.setStringList("coins", userPreferences.coins);
-    sharedPreferences.setInt('daysInterval', 2);
+    return sharedPreferences.setString('defaultCrypto', defaultCrypto);
   }
 
-  Future<bool> setDefaultCoin(String id) async {
+  Future<String> getDefaultCrypto() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.setString('coin', id);
-  }
-
-  Future<String> getDefaultCoin() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString('coin') ?? 'smooth-love-potion';
+    return sharedPreferences.getString('defaultCrypto') ??
+        "smooth-love-potion:Smooth Love Potion";
   }
 
   Future<bool> setCurrency(String currency) async {
