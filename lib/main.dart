@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:intl/intl.dart';
 import 'package:animations/animations.dart';
 import 'package:coind/repository/store.dart';
 import 'package:coind/routes/about.dart';
@@ -12,6 +11,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:coind/domain/coin_data.dart';
+import 'package:coind/l10n/formatters.dart';
 import 'package:coind/repository/preferences.dart';
 import 'l10n/l10n.dart';
 import 'widgets/crypto_data.dart';
@@ -21,6 +21,23 @@ import 'routes/settings.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const Coind());
+}
+
+void callbackDispatcher() {}
+
+void widgetBackgroundCallback(Uri? uri) async {
+  if (uri?.host == 'triggerRefresh') {
+    SharedPreferencesHelper helper = SharedPreferencesHelper();
+    String currency = await helper.getCurrency();
+    String coinId = await helper.getDefaultCoin();
+    Coin coin = await Store.fetchCoinData(coinId);
+
+    await HomeWidget.saveWidgetData<String>('symbol', coin.name);
+    await HomeWidget.saveWidgetData<String>(
+        'value', formatCurrency(coin.marketData?.currentPrice[currency]));
+    await HomeWidget.saveWidgetData<String>(
+        'lastUpdated', formatDateString(coin.lastUpdated?.toIso8601String()));
+  }
 }
 
 class Coind extends StatefulWidget {
@@ -73,6 +90,12 @@ class _CoindState extends State<Coind> {
           headline6: const TextStyle(color: Colors.white),
           overline: const TextStyle(color: Colors.white)),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    HomeWidget.registerBackgroundCallback(widgetBackgroundCallback);
   }
 
   @override
@@ -132,17 +155,14 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _sendData(Coin coin) async {
     try {
-      NumberFormat currencyFormat = NumberFormat.compactCurrency(
-          symbol: preferences.currency.toUpperCase());
-
       Future.wait([
         HomeWidget.saveWidgetData<String>('symbol', coin.name),
         HomeWidget.saveWidgetData<String>(
             'value',
-            currencyFormat
-                .format(coin.marketData?.currentPrice[preferences.currency])),
-        HomeWidget.saveWidgetData<String>(
-            'lastUpdated', coin.lastUpdated.toString())
+            formatCurrency(coin.marketData?.currentPrice[preferences.currency],
+                symbol: preferences.currency)),
+        HomeWidget.saveWidgetData<String>('lastUpdated',
+            formatDateString(coin.lastUpdated?.toIso8601String()))
       ]);
     } on PlatformException catch (exception) {
       debugPrint('Error Sending Data. $exception');

@@ -40,9 +40,24 @@ class SharedPreferencesHelper {
     sharedPreferences.setInt('daysInterval', 2);
   }
 
+  Future<bool> setDefaultCoin(String id) async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    return sharedPreferences.setString('coin', id);
+  }
+
+  Future<String> getDefaultCoin() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    return sharedPreferences.getString('coin') ?? 'smooth-love-potion';
+  }
+
   Future<bool> setCurrency(String currency) async {
     sharedPreferences = await SharedPreferences.getInstance();
     return await sharedPreferences.setString('currency', currency);
+  }
+
+  Future<String> getCurrency() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    return sharedPreferences.getString('currency') ?? 'usd';
   }
 
   Future<bool> setLanguage(String language) async {

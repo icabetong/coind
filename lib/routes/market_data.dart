@@ -1,3 +1,4 @@
+import 'package:coind/l10n/formatters.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -12,23 +13,8 @@ class MarketDataRoute extends StatelessWidget {
   final String userCurrency;
   final MarketData marketData;
 
-  String formatAsDate(String? date) {
-    if (date == null) return "";
-    DateTime? dateTime = DateTime.tryParse(date);
-
-    if (dateTime == null) return date;
-
-    return DateFormat("M/d/yy").format(dateTime);
-  }
-
   @override
   Widget build(BuildContext context) {
-    NumberFormat shortFormat = NumberFormat.compact();
-    NumberFormat currencyFormat =
-        NumberFormat.currency(symbol: userCurrency.toUpperCase());
-    NumberFormat shortCurrencyFormat =
-        NumberFormat.compactCurrency(symbol: userCurrency.toUpperCase());
-    NumberFormat percentFormat = NumberFormat.percentPattern();
     DateFormat dateFormat = DateFormat("MMM d yyyy-hh:mm a");
     return Scaffold(
       appBar:
@@ -43,8 +29,8 @@ class MarketDataRoute extends StatelessWidget {
                 children: [
                   OneLineDataContainer(
                       header: Translations.of(context)!.trading_volume,
-                      data: shortCurrencyFormat
-                          .format(marketData.totalVolume[userCurrency])),
+                      data:
+                          formatCurrency(marketData.totalVolume[userCurrency])),
                   OneLineDataContainer(
                       header: Translations.of(context)!.total_supply,
                       data: marketData.totalSupply.toStringAsFixed(0)),
@@ -58,21 +44,23 @@ class MarketDataRoute extends StatelessWidget {
                       data: marketData.circulatingSupply.toStringAsFixed(0)),
                   ThreeDataContainer(
                     header: Translations.of(context)!.all_time_high,
-                    mainData: currencyFormat
-                        .format(marketData.allTimeHigh[userCurrency]),
-                    siblingData: percentFormat
-                        .format(marketData.allTimeHighChange[userCurrency]),
-                    supportingData:
-                        formatAsDate(marketData.allTimeHighDate[userCurrency]!),
+                    mainData: formatCurrency(
+                        marketData.allTimeHigh[userCurrency],
+                        symbol: userCurrency),
+                    siblingData: formatPercent(
+                        marketData.allTimeHighChange[userCurrency]),
+                    supportingData: formatDateString(
+                        marketData.allTimeHighDate[userCurrency]!),
                   ),
                   ThreeDataContainer(
                     header: Translations.of(context)!.all_time_low,
-                    mainData: currencyFormat
-                        .format(marketData.allTimeLow[userCurrency]),
-                    siblingData: percentFormat
-                        .format(marketData.allTimeLowChange[userCurrency]),
-                    supportingData:
-                        formatAsDate(marketData.allTimeLowDate[userCurrency]!),
+                    mainData: formatCurrency(
+                        marketData.allTimeLow[userCurrency],
+                        symbol: userCurrency),
+                    siblingData: formatPercent(
+                        marketData.allTimeLowChange[userCurrency]),
+                    supportingData: formatDateString(
+                        marketData.allTimeLowDate[userCurrency]!),
                   ),
                 ],
               ),
@@ -94,51 +82,51 @@ class MarketDataRoute extends StatelessWidget {
               children: <Widget>[
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_1h,
-                    mainData: shortFormat.format(marketData
+                    mainData: formatLong(marketData
                         .priceChangePercentage1hInCurrency[userCurrency]),
                     supportingData: Translations.of(context)!.no_data),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_24h,
-                    mainData: shortFormat.format(marketData
+                    mainData: formatLong(marketData
                         .priceChangePercentage24hInCurrency[userCurrency]),
-                    supportingData: percentFormat
-                        .format(marketData.priceChangePercentage24h)),
+                    supportingData:
+                        formatPercent(marketData.priceChangePercentage24h)),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_7d,
-                    mainData: shortFormat.format(marketData
+                    mainData: formatLong(marketData
                         .priceChangePercentage7dInCurrency[userCurrency]),
-                    supportingData: percentFormat
-                        .format(marketData.priceChangePercentage7d)),
+                    supportingData:
+                        formatPercent(marketData.priceChangePercentage7d)),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_14d,
-                    mainData: shortFormat.format(marketData
+                    mainData: formatLong(marketData
                         .priceChangePercentage14dInCurrency[userCurrency]),
-                    supportingData: percentFormat
-                        .format(marketData.priceChangePercentage14d)),
+                    supportingData:
+                        formatPercent(marketData.priceChangePercentage14d)),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_30d,
-                    mainData: shortFormat.format(marketData
+                    mainData: formatLong(marketData
                         .priceChangePercentage30dInCurrency[userCurrency]),
-                    supportingData: percentFormat
-                        .format(marketData.priceChangePercentage30d)),
+                    supportingData:
+                        formatPercent(marketData.priceChangePercentage30d)),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_60d,
-                    mainData: shortFormat.format(marketData
+                    mainData: formatLong(marketData
                         .priceChangePercentage60dInCurrency[userCurrency]),
-                    supportingData: percentFormat
-                        .format(marketData.priceChangePercentage60d)),
+                    supportingData:
+                        formatPercent(marketData.priceChangePercentage60d)),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_200d,
-                    mainData: shortFormat.format(marketData
+                    mainData: formatLong(marketData
                         .priceChangePercentage200dInCurrency[userCurrency]),
-                    supportingData: percentFormat
-                        .format(marketData.priceChangePercentage200d)),
+                    supportingData:
+                        formatPercent(marketData.priceChangePercentage200d)),
                 TwoLineDataCard(
                     header: Translations.of(context)!.price_change_1y,
-                    mainData: shortFormat.format(marketData
+                    mainData: formatLong(marketData
                         .priceChangePercentage1yInCurrency[userCurrency]),
-                    supportingData: percentFormat
-                        .format(marketData.priceChangePercentage1y)),
+                    supportingData:
+                        formatPercent(marketData.priceChangePercentage1y)),
               ],
             ),
             if (marketData.getLastUpdatedDate() != null)

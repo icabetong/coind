@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
@@ -11,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:coind/domain/coin_data.dart';
 import 'package:coind/domain/market_data.dart';
 import 'package:coind/domain/market_graph_data.dart';
+import 'package:coind/l10n/formatters.dart';
 import 'package:coind/repository/store.dart';
 import 'package:coind/repository/preferences.dart';
 import 'package:coind/routes/market_data.dart';
@@ -55,14 +55,8 @@ class _CryptoDataWidgetState extends State<CryptoDataWidget> {
 
   @override
   Widget build(BuildContext context) {
+    String currency = widget.preferences.currency;
     DateFormat dateFormat = DateFormat("M d yyyy, h:mm a");
-    NumberFormat currencyFormat = NumberFormat.currency(
-        symbol: NumberFormat.currency(
-                locale: Platform.localeName,
-                name: widget.preferences.currency.toUpperCase())
-            .currencySymbol);
-    NumberFormat currencyShortFormat = NumberFormat.compactCurrency(
-        symbol: widget.preferences.currency.toUpperCase());
 
     return SingleChildScrollView(
       physics: const ScrollPhysics(),
@@ -79,8 +73,10 @@ class _CryptoDataWidgetState extends State<CryptoDataWidget> {
                       fontSize: 16.0,
                       color: Colors.white70)),
               Text(
-                  currencyFormat.format(widget.coin.marketData
-                      ?.currentPrice[widget.preferences.currency]),
+                  formatCurrency(
+                      widget.coin.marketData
+                          ?.currentPrice[widget.preferences.currency],
+                      symbol: currency),
                   style: Theme.of(context).textTheme.headline3?.copyWith(
                         fontWeight: FontWeight.w400,
                         color: Colors.white,
@@ -108,8 +104,10 @@ class _CryptoDataWidgetState extends State<CryptoDataWidget> {
                   children: [
                     OneLineDataContainer(
                         header: Translations.of(context)!.market_cap,
-                        data: currencyShortFormat.format(widget.coin.marketData
-                            ?.marketCap[widget.preferences.currency])),
+                        data: formatCurrency(
+                            widget.coin.marketData
+                                ?.marketCap[widget.preferences.currency],
+                            symbol: currency)),
                     OneLineDataContainer(
                         header: Translations.of(context)!.market_cap_rank,
                         data:
@@ -117,12 +115,16 @@ class _CryptoDataWidgetState extends State<CryptoDataWidget> {
                                 Translations.of(context)!.no_data),
                     OneLineDataContainer(
                         header: Translations.of(context)!.highest_24h,
-                        data: currencyFormat.format(widget.coin.marketData
-                            ?.highest24h[widget.preferences.currency])),
+                        data: formatCurrency(
+                            widget.coin.marketData
+                                ?.highest24h[widget.preferences.currency],
+                            symbol: currency)),
                     OneLineDataContainer(
                         header: Translations.of(context)!.lowest_24h,
-                        data: currencyFormat.format(widget.coin.marketData
-                            ?.lowest24h[widget.preferences.currency])),
+                        data: formatCurrency(
+                            widget.coin.marketData
+                                ?.lowest24h[widget.preferences.currency],
+                            symbol: currency)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       mainAxisSize: MainAxisSize.max,
@@ -286,7 +288,7 @@ class _CryptoDataWidgetState extends State<CryptoDataWidget> {
                         margin: const EdgeInsets.only(top: 24),
                         child: Text(
                             Translations.of(context)!.last_updated(
-                                dateFormat.format(widget.coin.lastUpdated!)),
+                                formatDate(widget.coin.lastUpdated!)),
                             style: const TextStyle(color: Colors.white54)),
                       ),
                     Container(
