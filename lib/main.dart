@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:home_widget/home_widget.dart';
+import 'package:workmanager/workmanager.dart';
 import 'package:coind/domain/coin_data.dart';
 import 'package:coind/l10n/formatters.dart';
 import 'package:coind/repository/preferences.dart';
@@ -19,13 +20,23 @@ import 'routes/settings.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(callbackDispatcher);
   runApp(const Coind());
 }
 
-void callbackDispatcher() {}
+void callbackDispatcher() {
+  Workmanager().executeTask((taskName, inputData) {
+    return Future.wait<bool?>([
+      HomeWidget.saveWidgetData('symbol', 'DT'),
+      HomeWidget.saveWidgetData('value', 'no value')
+    ]).then((value) {
+      return !value.contains(false);
+    });
+  });
+}
 
 void widgetBackgroundCallback(Uri? uri) async {
-  if (uri?.host == 'triggerRefresh') {
+  if (uri?.host == 'refresh') {
     SharedPreferencesHelper helper = SharedPreferencesHelper();
     String currency = await helper.getCurrency();
     String coinId = await helper.getDefaultCrypto();
@@ -37,6 +48,7 @@ void widgetBackgroundCallback(Uri? uri) async {
         'value', formatCurrency(coin.marketData?.currentPrice[currency]));
     await HomeWidget.saveWidgetData<String>(
         'lastUpdated', formatDateString(coin.lastUpdated?.toIso8601String()));
+    await HomeWidget.updateWidget(name: 'DataWidgetProvider');
   }
 }
 
@@ -135,24 +147,27 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  SharedPreferencesHelper helper = SharedPreferencesHelper();
-  UserPreferences preferences = UserPreferences.getDefault();
+  final SharedPreferencesHelper _helper = SharedPreferencesHelper();
+  UserPreferences _preferences = UserPreferences.getDefault();
 
-  late Future<Coin> coin;
+  Future<Coin>? _coin;
 
   void _prepare() {
-    String defaultCrypto = preferences.defaultCrypto;
-    coin = Store.fetchCoinData(
-        defaultCrypto.substring(0, defaultCrypto.indexOf(':')));
+    _helper.getPreferences().then((value) {
+      String defaultCrypto = value.defaultCrypto;
+      Future<Coin> coin = Store.fetchCoinData(
+          defaultCrypto.substring(0, defaultCrypto.indexOf(':')));
+      setState(() {
+        _preferences = value;
+        _coin = coin;
+      });
+    });
   }
 
   @override
   void initState() {
     super.initState();
     _prepare();
-    helper.getPreferences().then((value) {
-      preferences = value;
-    });
   }
 
   Future<void> _sendData(Coin coin) async {
@@ -161,8 +176,8 @@ class _HomePageState extends State<HomePage> {
         HomeWidget.saveWidgetData<String>('symbol', coin.name),
         HomeWidget.saveWidgetData<String>(
             'value',
-            formatCurrency(coin.marketData?.currentPrice[preferences.currency],
-                symbol: preferences.currency)),
+            formatCurrency(coin.marketData?.currentPrice[_preferences.currency],
+                symbol: _preferences.currency)),
         HomeWidget.saveWidgetData<String>('lastUpdated',
             formatDateString(coin.lastUpdated?.toIso8601String()))
       ]);
@@ -245,14 +260,14 @@ class _HomePageState extends State<HomePage> {
             _prepare();
           },
           child: FutureBuilder<Coin>(
-              future: coin,
+              future: _coin,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   _sendData(snapshot.data!);
                   return CryptoDataWidget(
                     coin: snapshot.data!,
                     coinId: snapshot.data!.id,
-                    preferences: preferences,
+                    preferences: _preferences,
                   );
                 } else if (snapshot.hasError) {
                   return const ErrorState();

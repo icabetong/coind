@@ -31,7 +31,7 @@ class SharedPreferencesHelper {
     sharedPreferences = await SharedPreferences.getInstance();
     UserPreferences userPreferences = UserPreferences();
     userPreferences.defaultCrypto =
-        sharedPreferences.getString("widgetCrypto") ??
+        sharedPreferences.getString("defaultCrypto") ??
             UserPreferences._initDefaultCrypto;
     userPreferences.currency = sharedPreferences.getString("currency") ??
         UserPreferences._initCurrency;
