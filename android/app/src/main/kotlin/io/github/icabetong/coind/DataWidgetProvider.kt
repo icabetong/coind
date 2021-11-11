@@ -29,7 +29,7 @@ class DataWidgetProvider: HomeWidgetProvider() {
                 val pendingIntent = HomeWidgetLaunchIntent.getActivity(context, MainActivity::class.java)
                 setOnClickPendingIntent(R.id.widgetContainer, pendingIntent);
 
-                val backgroundIntent = HomeWidgetBackgroundIntent.getBroadcast(context, Uri.parse("coindWidget://triggerRefresh"));
+                val backgroundIntent = HomeWidgetBackgroundIntent.getBroadcast(context, Uri.parse("coindWidget://refresh"));
                 setOnClickPendingIntent(R.id.triggerRefreshButton, backgroundIntent);
             }
 

@@ -36,6 +36,7 @@ void callbackDispatcher() {
 }
 
 void widgetBackgroundCallback(Uri? uri) async {
+  debugPrint(uri?.toString());
   if (uri?.host == 'refresh') {
     SharedPreferencesHelper helper = SharedPreferencesHelper();
     String currency = await helper.getCurrency();
