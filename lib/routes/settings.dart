@@ -316,25 +316,26 @@ class _CurrenciesScreenState extends State<CurrenciesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(Translations.of(context)!.select_currency),
-          leading: GestureDetector(
-              onTap: () {
-                Navigator.pop(context, currentCurrency);
-              },
-              child: const Icon(Icons.arrow_back)),
-        ),
-        body: ListView(
-          children: currencies
-              .map((currency) => ListTile(
-                    title: Text(currencyNames[currency] ?? ""),
-                    leading: _trailingWidget(currency),
-                    onTap: () {
-                      _change(context, currency);
-                    },
-                  ))
-              .toList(),
-        ));
+      appBar: AppBar(
+        title: Text(Translations.of(context)!.select_currency),
+        leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context, currentCurrency);
+            },
+            child: const Icon(Icons.arrow_back)),
+      ),
+      body: ListView.separated(
+          separatorBuilder: (context, index) => const Divider(),
+          itemCount: currencies.length,
+          itemBuilder: (context, index) => ListTile(
+                title: Text(currencies[index].toUpperCase()),
+                subtitle: Text(currencyNames[currencies[index]] ?? ""),
+                trailing: _trailingWidget(currencies[index]),
+                onTap: () {
+                  _change(context, currencies[index]);
+                },
+              )),
+    );
   }
 
   Widget _trailingWidget(String currency) {
@@ -380,15 +381,16 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
               },
               child: const Icon(Icons.arrow_back)),
         ),
-        body: ListView(
-            children: languages
-                .map((language) => ListTile(
-                    title: Text(languageNames[language] ?? ""),
-                    leading: _trailingWidget(language),
-                    onTap: () {
-                      _change(context, language);
-                    }))
-                .toList()));
+        body: ListView.separated(
+          separatorBuilder: (context, index) => const Divider(),
+          itemCount: languages.length,
+          itemBuilder: (context, index) => ListTile(
+              title: Text(languageNames[languages[index]] ?? ""),
+              trailing: _trailingWidget(languages[index]),
+              onTap: () {
+                _change(context, languages[index]);
+              }),
+        ));
   }
 
   Widget _trailingWidget(String language) {

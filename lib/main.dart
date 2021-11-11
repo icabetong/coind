@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:home_widget/home_widget.dart';
-import 'package:workmanager/workmanager.dart';
 import 'package:coind/domain/coin_data.dart';
 import 'package:coind/l10n/formatters.dart';
 import 'package:coind/repository/preferences.dart';
@@ -20,23 +19,10 @@ import 'routes/settings.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Workmanager().initialize(callbackDispatcher);
   runApp(const Coind());
 }
 
-void callbackDispatcher() {
-  Workmanager().executeTask((taskName, inputData) {
-    return Future.wait<bool?>([
-      HomeWidget.saveWidgetData('symbol', 'DT'),
-      HomeWidget.saveWidgetData('value', 'no value')
-    ]).then((value) {
-      return !value.contains(false);
-    });
-  });
-}
-
 void widgetBackgroundCallback(Uri? uri) async {
-  debugPrint(uri?.toString());
   if (uri?.host == 'refresh') {
     SharedPreferencesHelper helper = SharedPreferencesHelper();
     String currency = await helper.getCurrency();
