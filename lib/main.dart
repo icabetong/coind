@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'package:coind/repository/store.dart';
-import 'package:coind/routes/about.dart';
-import 'package:coind/routes/crypto_list.dart';
-import 'package:coind/widgets/states.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +9,11 @@ import 'package:home_widget/home_widget.dart';
 import 'package:coind/domain/coin_data.dart';
 import 'package:coind/l10n/formatters.dart';
 import 'package:coind/repository/preferences.dart';
+import 'package:coind/repository/store.dart';
+import 'package:coind/routes/about.dart';
+import 'package:coind/routes/crypto_list.dart';
+import 'package:coind/routes/favourties.dart';
+import 'package:coind/widgets/states.dart';
 import 'l10n/l10n.dart';
 import 'widgets/crypto_data.dart';
 import 'routes/crypto.dart';
@@ -213,6 +215,10 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (BuildContext context) {
               return [
                 PopupMenuItem<String>(
+                    value: "action:favorites",
+                    child:
+                        Text(Translations.of(context)!.navigation_favorites)),
+                PopupMenuItem<String>(
                   value: "action:settings",
                   child: Text(Translations.of(context)!.navigation_settings),
                 ),
@@ -223,6 +229,12 @@ class _HomePageState extends State<HomePage> {
             },
             onSelected: (result) {
               switch (result) {
+                case "action:favorites":
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const FavouritesRoute()));
+                  break;
                 case "action:settings":
                   Navigator.push(
                       context,

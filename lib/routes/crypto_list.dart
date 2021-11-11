@@ -31,7 +31,9 @@ class _CryptoListRouteState extends State<CryptoListRoute> {
     });
   }
 
-  void _addToFavorites(String currency) {
+  void _addToFavorites(Market market) {
+    String currency = '${market.id}:${market.symbol}';
+
     if (!currencies.contains(currency)) {
       currencies.add(currency);
       setState(() {
@@ -42,7 +44,9 @@ class _CryptoListRouteState extends State<CryptoListRoute> {
     }
   }
 
-  void _removeFromFavorites(String currency) {
+  void _removeFromFavorites(Market market) {
+    String currency = '${market.id}:${market.symbol}';
+
     if (currencies.contains(currency)) {
       currencies.remove(currency);
       setState(() {
@@ -53,18 +57,20 @@ class _CryptoListRouteState extends State<CryptoListRoute> {
     }
   }
 
-  Widget trailingWidget(String currency) {
+  Widget trailingWidget(Market market) {
+    String currency = '${market.id}:${market.symbol}';
+
     return currencies.contains(currency)
         ? IconButton(
             icon: const Icon(Icons.star_rounded, color: Colors.amber),
             onPressed: () {
-              _removeFromFavorites(currency);
+              _removeFromFavorites(market);
             },
           )
         : IconButton(
             icon: const Icon(Icons.star_outline_rounded),
             onPressed: () {
-              _addToFavorites(currency);
+              _addToFavorites(market);
             });
   }
 
@@ -108,7 +114,7 @@ class _CryptoListRouteState extends State<CryptoListRoute> {
                 pagingController: controller,
                 builderDelegate: PagedChildBuilderDelegate<Market>(
                     itemBuilder: (context, item, index) => ListTile(
-                        trailing: trailingWidget(item.id),
+                        trailing: trailingWidget(item),
                         leading: FadeInImage.memoryNetwork(
                             width: 36,
                             height: 36,

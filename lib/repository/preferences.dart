@@ -11,13 +11,14 @@ class UserPreferences {
   static const _initCurrency = 'php';
   static const _initLanguage = 'en';
   static const _initDaysInterval = 2;
+  static const _initDefaultFavorite = 'smooth-love-potion:slp';
 
   UserPreferences(
       {this.defaultCrypto = _initDefaultCrypto,
       this.currency = _initCurrency,
       this.language = _initLanguage,
       this.daysInterval = _initDaysInterval,
-      this.coins = const [_initDefaultCrypto]});
+      this.coins = const [_initDefaultFavorite]});
 
   static UserPreferences getDefault() {
     return UserPreferences();
@@ -40,7 +41,7 @@ class SharedPreferencesHelper {
     userPreferences.daysInterval = sharedPreferences.getInt("daysInterval") ??
         UserPreferences._initDaysInterval;
     userPreferences.coins = sharedPreferences.getStringList("coins") ??
-        [UserPreferences._initDefaultCrypto];
+        [UserPreferences._initDefaultFavorite];
     return userPreferences;
   }
 
